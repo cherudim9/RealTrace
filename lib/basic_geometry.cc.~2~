@@ -1,0 +1,10 @@
+#include "../include/basic_types.h"
+#include "../include/basic_geometry.h"
+
+bool PlaneT::Intersect(const RayT &r, PointT &ip)const{
+
+}
+
+bool SphereT::Intersect(const RayT &r, PointT &ip)const{
+
+}

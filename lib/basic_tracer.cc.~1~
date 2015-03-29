@@ -1,0 +1,7 @@
+#include "../include/basic_tracer.h"
+
+using namespace std;
+
+int Tracer::RayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth){
+  int hit_id=r.FindFirstHitInVec(objs);
+}

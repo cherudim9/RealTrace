@@ -1,0 +1,5 @@
+#include "../include/basic_types.h"
+
+bool PlaneT::Intersect(const RayT &r, PointT &ip)const{
+
+}

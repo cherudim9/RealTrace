@@ -1,0 +1,133 @@
+#ifndef BASIC_GEOMETRY_H_
+#define BASIC_GEOMETRY_H_
+
+#include <cmath>
+#include <vector>
+
+typedef double CoordinateT;
+
+template<class T>
+T Sqr(const T &a){
+  return a*a;
+}
+
+class PointT{
+
+ public:
+  PointT(){}
+
+  PointT(CoordinateT x, CoordinateT y, CoordinateT z)
+    :x_(x), y_(y), z_(z){
+  }
+
+  CoordinateT GetX()const{ return x_; }
+  CoordinateT GetY()const{ return y_; }
+  CoordinateT GetZ()const{ return z_; }
+  
+  bool operator==(const PointT &b){ return Sign(x_-b.x_)==0 && Sign(y_-b.y_)==0 && Sign(z_-b.z_)==0; }
+  CoordinateT Length2()const{ return Sqr(x_)+Sqr(y_)+Sqr(z_); }
+  CoordinateT Length()const{ return sqrt(Length2()); }
+  PointT Unit()const{ CoordinateT d=Length(); return PointT(x_/d, y_/d, z_/d); }
+  PointT operator+(const PointT &b)const{ return PointT(x_+b.x_, y_+b.y_, z_+b.z_); }
+  PointT operator-(const PointT &b)const{ return PointT(x_-b.x_, y_-b.y_, z_-b.z_); }
+  PointT operator*(const CoordinateT &k)const{ return PointT(k*x_, k*y_, k*z_); }
+  PointT& operator+=(const PointT &b){ x_+=b.x_, y_+=b.y_, z_+=b.z_; return *this; }
+  friend PointT operator*(const CoordinateT &k, const PointT &a){ return PointT(k*a.x_, k*a.y_, k*a.z_); }
+  CoordinateT operator*(const PointT &b)const{ return x_*b.x_ + y_*b.y_ + z_*b.z_; }//dot product
+  friend PointT Cross(const PointT &a, const PointT &b);
+
+ private:
+  CoordinateT x_, y_, z_;
+
+};
+
+class Renderer;
+
+class RayT{
+  
+ public:
+  RayT(){}
+
+  RayT(PointT O, PointT R)
+    :O_(O), R_(R){
+    R_=R_.Unit();
+  }
+
+  PointT GetO()const{ return O_; }
+  PointT GetR()const{ return R_; }
+
+  int FindFirstHitInVec(const std::vector<Renderer*> &objs);
+
+ private:
+  PointT O_, R_;
+
+};
+
+
+class Renderer{
+
+ public:
+  Renderer(){}
+  
+ Renderer(double a, double b, bool light)
+   :reflect_coefficient(a), refract_coefficient(b), light_(light){
+  }
+
+  virtual double Intersect(const RayT &r, PointT &ip)const=0;
+  virtual PointT GetSurfaceNormal(const PointT &surface_point)const=0;
+  bool IsLight(){ return light_; }
+  
+ private:
+  double reflect_coefficient, refract_coefficient;
+
+  bool light_;
+
+};
+
+class PlaneT: public Renderer{
+  
+ public:
+  PlaneT(){}
+  
+ PlaneT(double a, double b, bool light, PointT O, PointT R)
+   :Renderer(a,b,light), O_(O), R_(R){
+    R_=R_.Unit();
+  }
+
+  PointT GetO()const{ return O_; }
+  PointT GetR()const{ return R_; }
+
+  double Intersect(const RayT &r, PointT &ip)const;
+  friend double Intersect(const PlaneT &pl, const RayT &r, PointT &ip);
+
+  PointT GetSurfaceNormal(const PointT &surface_point)const;
+
+ private:
+  PointT O_, R_; //R_ is unit vector
+
+};
+
+class SphereT: public Renderer{
+  
+ public:
+  SphereT(){}
+  
+ SphereT(double a, double b, bool light, PointT O, CoordinateT R)
+   :Renderer(a,b,light), O_(O), R_(R){
+  }
+
+  PointT GetO()const{ return O_; }
+  CoordinateT GetR()const{ return R_; }
+
+  double Intersect(const RayT &r, PointT &ip)const;
+  friend double Intersect(const SphereT &s, const RayT &r, PointT &ip);
+
+  PointT GetSurfaceNormal(const PointT &surface_point)const;
+
+ private:
+  PointT O_;
+  CoordinateT R_;
+  
+};
+
+#endif

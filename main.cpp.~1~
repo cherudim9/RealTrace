@@ -1,0 +1,13 @@
+#include <iostream>
+#include "include/basic_types.h"
+#include "include/bmpio.h"
+#include "include/utility.h"
+
+using namespace std;
+
+int main(){
+  
+  
+
+  return 0;
+}

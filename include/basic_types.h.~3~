@@ -1,0 +1,12 @@
+#ifndef TYPES_H_
+#define TYPES_H_
+
+typedef unsigned char BYTE;//8 bits
+typedef unsigned short WORD;//16 bits
+typedef unsigned int DWORD;//32 bits
+
+struct PixelColor{
+  BYTE R, G, B;
+};
+
+#endif
