@@ -20,7 +20,6 @@ CoordinateT Dot(const PointT &a, const PointT &b){
   return a.x_*b.x_ + a.y_*b.y_ + a.z_*b.z_;
 }
 
-
 double Intersect(const SphereT &sphere, const RayT &ray, PointT &ip){
   return sphere.Intersect(ray, ip);
 }  
@@ -38,8 +37,8 @@ double PlaneT::Intersect(const RayT &ray, PointT &ip)const{
   //to solve tA+B=0
   double A = rr.GetX() * normal_.GetX() + rr.GetY() * normal_.GetY() + rr.GetZ() * normal_.GetZ();
   double B = ro.GetX() * normal_.GetX() + ro.GetY() * normal_.GetY() + ro.GetZ() * normal_.GetZ();
-  if ( Sign(A) == 0 )
-    return -1.0; //ignore when A==B==0
+  if ( Sign(A) == 0 || Sign(B) == 0 )
+    return -1.0; 
   double ret=-B/A;
   ip = ro + o_ + ret * rr;
   return ret;
@@ -67,18 +66,24 @@ double SphereT::Intersect(const RayT &ray, PointT &ip)const{
   return t;
 }
 
-PointT PlaneT::GetSurfaceNormal(const PointT &surface_point)const{
+PointT PlaneT::GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{
+  double dot = Dot( from - surface_point , normal_ );
+  if (Sign(dot)<0)
+    return -normal_;
   return normal_;
 }
 
-PointT SphereT::GetSurfaceNormal(const PointT &surface_point)const{
-  return (surface_point - center_).Unit();
+PointT SphereT::GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{
+  PointT normal_ = (surface_point - center_).Unit();
+  double dot = Dot( from - surface_point, normal_ );
+  if (Sign(dot)<0)
+    return -normal_;
+  return normal_;
 }
 
 int RayT::FindFirstHitInVec(const vector<Renderer*> &objs)const{
   double hit_dis=1e30;
   int hit_ret=-1;
-  int i=0;
   for(int i=0; i!=objs.size(); i++){
     PointT ip;
     double x=objs[i]->Intersect(*this, ip);

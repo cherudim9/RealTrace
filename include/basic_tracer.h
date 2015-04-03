@@ -4,13 +4,13 @@
 #include "basic_geometry.h"
 #include <vector>
 
-const int kMaxDepth=5;
+const int kMaxDepth=10;
 
 class Tracer{
 
  public:
 
-  static int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth);
+  static int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double rafract_index, bool debug);
 
 };
 
