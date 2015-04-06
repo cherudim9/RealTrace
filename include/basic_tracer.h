@@ -4,7 +4,7 @@
 #include "basic_geometry.h"
 #include <vector>
 
-const int kMaxDepth=10;
+const int kMaxDepth=15;
 
 class Tracer{
 

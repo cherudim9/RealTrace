@@ -1,7 +1,7 @@
 
 COMPILIER=g++
 
-CFLAGS=-g -Wall -std=c++0x
+CFLAGS=-g -Wall -std=c++0x -O2
 
 LDFLAGS=
 
@@ -24,3 +24,6 @@ all: $(SOURCES) $(HEADERS)
 
 clean:
 	rm $(EXECUTABLE)
+
+gprof: $(SOURCES) $(HEADERS)
+	$(COMPILIER) $(CFLAGS) -pg $(SOURCES) -o $(EXECUTABLE)

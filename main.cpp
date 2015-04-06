@@ -24,10 +24,10 @@ int main(){
     obj_vec.push_back(new PlaneT( Renderer(0.0, 0.0, 1.0, 0.0, PixelColor(113, 83, 38), false),
                                   PointT(0.0, -10.0, 0.0), 
                                   PointT(0.0, 1.0, 0.0)));
-    obj_vec.push_back(new PlaneT( Renderer(0.0, 0.0, 1.0, 0.0, PixelColor(0,230,230), false),
+    obj_vec.push_back(new PlaneT( Renderer(0.5, 0.0, 1.0, 0.0, PixelColor(0,0,230), false),
                                   PointT(40.0, 0.0, 0.0),
                                   PointT(-1.0, 0.0, 0.0)));
-    obj_vec.push_back(new PlaneT( Renderer(0.0, 0.0, 1.0, 0.0, PixelColor(230,230,0), false),
+    obj_vec.push_back(new PlaneT( Renderer(0.5, 0.0, 1.0, 0.0, PixelColor(230,230,0), false),
                                   PointT(-25.0, 0.0, 0.0),
                                   PointT(1.0, 0.0, 0.0)));
     obj_vec.push_back(new PlaneT( Renderer(0.7, 0.0, 0.0, 0.0, PixelColor(255,255,255), false),
@@ -41,8 +41,11 @@ int main(){
                                    PointT(-10.0, 0.0, -10.0),
                                    7.0));
     obj_vec.push_back(new SphereT( Renderer(1.0, 0.0, 1.5, 1.7, PixelColor(255, 255, 255), false),
-                                   PointT(10.0, 0.0, 0.0),
+                                   PointT(10.0, 0.0, 2.0),
                                    10.0));
+    obj_vec.push_back(new SphereT( Renderer(0.0, 1.0, 1.0, 1.7, PixelColor(255, 255, 255), false),
+                                   PointT(0.0, 5.0, -15.0),
+                                   3.0));
     obj_vec.push_back(new SphereT( Renderer(0.0, 0.0, 0.0, 0.0, PixelColor(255,255,255), true, 0.8),
                                    PointT(0.0, 50.0, 0.0),
                                    0.5));
@@ -52,7 +55,7 @@ int main(){
 
   }
 
-  PointT camera(0.0, 5.0, -50.0), eye(0.0, 0.0, 1.0), head(0.0, 1.0, 0.0);
+  PointT camera(0.0, 8.0, -50.0), eye(0.0, 0.0, 1.0), head(0.0, 1.0, 0.0);
   
   PixelColor bmp_data[width*height+10];
 
@@ -61,7 +64,7 @@ int main(){
   for(int i=0; i<width; i++){
     y=-10.0*scale;
     for(int j=0; j<height; j++){
-      RayT ray(camera, PointT(x, y, -30.0) - camera);
+      RayT ray(camera, PointT(x, y, 25));
       PointT color;
       bool debug=0;
       Tracer::RayTrace(ray, obj_vec, color, 0, 1.0, debug);
