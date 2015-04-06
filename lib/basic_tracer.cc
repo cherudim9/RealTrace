@@ -84,7 +84,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
     PointT T= index_ratio * I - ( index_ratio * cos + sqrt( 1 - sin2 ) ) * N ;//refractory direction
     PointT recurssive_color;
     RayTrace( RayT(ray_hit, T), objs, recurssive_color, now_depth+1, objs[hit_id]->GetRefractIndex(ray.GetO()), debug);
-    double ratio=1.0;
+    double ratio=1.0;//Beer's Law
     if (index_ratio < 1.0){
       ratio=exp(-0.010*(ray_hit-ray.GetO()).Length());
     }

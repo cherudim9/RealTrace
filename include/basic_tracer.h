@@ -1,7 +1,7 @@
 #ifndef BASIC_TRACER_H_
 #define BASIC_TRACER_H_
 
-#include "basic_geometry.h"
+#include "basic_renderer.h"
 #include <vector>
 
 const int kMaxDepth=15;

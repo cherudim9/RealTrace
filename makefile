@@ -10,12 +10,16 @@ HEADERS= include/basic_types.h	\
 	include/utility.h	\
 	include/basic_geometry.h	\
 	include/basic_tracer.h	\
-	include/basic_render.h	
+	include/basic_render.h	\
+	include/tga_input.h	\
+	include/basic_renderer.h
 
 SOURCES= main.cpp	\
 	lib/basic_geometry.cc 	\
 	lib/bmpio.cc	\
-	lib/basic_tracer.cc
+	lib/basic_tracer.cc	\
+	lib/tga_input.cc	\
+	lib/basic_renderer.cc
 
 EXECUTABLE=main
 
