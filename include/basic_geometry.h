@@ -4,6 +4,7 @@
 #include <cmath>
 #include "basic_types.h"
 #include <vector>
+#include <iostream>
 
 typedef double CoordinateT;
 

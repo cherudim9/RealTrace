@@ -57,13 +57,13 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
       PointT L= ( sphere->GetCenter() - ray_hit ).Unit(); //light vector
       CoordinateT dot=Dot(N, L);
       if (Sign(dot)>0){
-        accumulate_color += objs[i]->GetIntensity() * objs[hit_id]->GetDiffuse() * dot * objs[hit_id]->GetColor();
+        accumulate_color += objs[i]->GetIntensity() * objs[hit_id]->GetDiffuse() * dot * objs[hit_id]->GetColor(ray_hit);
       }
 
       //specular light
       dot=Dot(V,L);
       if (Sign(dot)>0){
-        accumulate_color += objs[i]->GetIntensity() * objs[hit_id]->GetReflect() * Power(dot, 20) * objs[i]->GetColor();
+        accumulate_color += objs[i]->GetIntensity() * objs[hit_id]->GetReflect() * Power(dot, 35) * objs[i]->GetColor(ray_hit);
       }
     }
 
@@ -72,7 +72,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
   if (Sign(reflect)>0 && now_depth<kMaxDepth){
     PointT recurssive_color;
     RayTrace( RayT(ray_hit, V), objs, recurssive_color, now_depth+1 , refract_index, debug);
-    accumulate_color += recurssive_color * reflect * objs[hit_id]->GetColor();
+    accumulate_color += recurssive_color * reflect * objs[hit_id]->GetColor(ray_hit);
   }
 
   //-- third part
@@ -88,7 +88,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
     if (index_ratio < 1.0){
       ratio=exp(-0.010*(ray_hit-ray.GetO()).Length());
     }
-    accumulate_color += recurssive_color * refract * objs[hit_id]->GetColor() * ratio;
+    accumulate_color += recurssive_color * refract * objs[hit_id]->GetColor(ray_hit) * ratio;
   }
 
   if (debug){

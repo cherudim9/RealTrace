@@ -12,7 +12,8 @@ HEADERS= include/basic_types.h	\
 	include/basic_tracer.h	\
 	include/basic_render.h	\
 	include/tga_input.h	\
-	include/basic_renderer.h
+	include/basic_renderer.h	\
+	include/basic_texture.h
 
 SOURCES= main.cpp	\
 	lib/basic_geometry.cc 	\
