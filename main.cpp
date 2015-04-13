@@ -9,8 +9,8 @@
 
 using namespace std;
 
-const int width=1280;
-const int height=1280;
+const int width=500;
+const int height=500;
 
 PointT Color[2000][2000];
 
@@ -81,7 +81,7 @@ int main(){
     obj_vec[5]->SetDiffuse(1.5);
     obj_vec[5]->SetRefractIndex(1.7);
     obj_vec[5]->SetColor(PixelColor(255,255,255));
-    ((SphereT*)obj_vec[5])->SetCenter(PointT(-10.0, 0.0, -10.0));
+    ((SphereT*)obj_vec[5])->SetCenter(PointT(-10.0, 3.0, -10.0));
     ((SphereT*)obj_vec[5])->SetRadius(7.0);
 
     obj_vec[6]=new SphereT();
@@ -117,7 +117,14 @@ int main(){
 
   }
 
-  PointT camera(0.0, 8.0, -50.0), eye(0.0, 0.0, 1.0), head(0.0, 1.0, 0.0);
+  PointT camera(0.0, 25.0, -50.0), eye_direction(0.0, -0.5, 1.0), head_direction(0.0, 1.0, 0.0);
+  eye_direction.Normalize();
+  PointT righthand_direction=Cross(head_direction, eye_direction).Unit();
+  head_direction=Cross( eye_direction, righthand_direction);
+
+  cout<<eye_direction.GetX()<<","<<eye_direction.GetY()<<","<<eye_direction.GetZ()<<endl;
+  cout<<head_direction.GetX()<<","<<head_direction.GetY()<<","<<head_direction.GetZ()<<endl;
+  cout<<righthand_direction.GetX()<<","<<righthand_direction.GetY()<<","<<righthand_direction.GetZ()<<endl;
   
   PixelColor bmp_data[width*height+10];
 
@@ -126,7 +133,7 @@ int main(){
   for(int i=0; i<width; i++){
     y=-10.0*scale;
     for(int j=0; j<height; j++){
-      RayT ray(camera, PointT(x, y, 10));
+      RayT ray(camera, head_direction * y + righthand_direction * x + eye_direction * 20);
       PointT color;
       bool debug=0;
       Tracer::RayTrace(ray, obj_vec, color, 0, 1.0, debug);
@@ -138,6 +145,6 @@ int main(){
   }
 
   OutputBmp(width, height, bmp_data, "result.bmp"); 
-
+  
   return 0;
 }

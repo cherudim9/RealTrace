@@ -37,6 +37,7 @@ class PointT{
   CoordinateT Length2()const{ return Sqr(x_)+Sqr(y_)+Sqr(z_); }
   CoordinateT Length()const{ return sqrt(Length2()); }
   PointT Unit()const{ CoordinateT d=Length(); return PointT(x_/d, y_/d, z_/d); }
+  void Normalize(){ *this=Unit(); }
   PointT operator+(const PointT &b)const{ return PointT(x_+b.x_, y_+b.y_, z_+b.z_); }
   PointT operator-(const PointT &b)const{ return PointT(x_-b.x_, y_-b.y_, z_-b.z_); }
   PointT operator-()const{ return PointT(-x_, -y_, -z_); }
