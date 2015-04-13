@@ -5,6 +5,7 @@
 #include "include/utility.h"
 #include "include/basic_tracer.h"
 #include "include/basic_texture.h"
+#include "include/view.h"
 #include <vector>
 
 using namespace std;
@@ -99,7 +100,7 @@ int main(){
     obj_vec[7]->SetDiffuse(2.0);
     obj_vec[7]->SetRefractIndex(1.7);
     obj_vec[7]->SetColor(PixelColor(255,255,255));
-    ((SphereT*)obj_vec[7])->SetCenter(PointT(0.0, 5.0, -15.0));
+    ((SphereT*)obj_vec[7])->SetCenter(PointT(0.0, 5.0, -20.0));
     ((SphereT*)obj_vec[7])->SetRadius(3.0);
     obj_vec[7]->SetTexture(textures.GetTexture(1));
 
@@ -117,32 +118,41 @@ int main(){
 
   }
 
-  PointT camera(0.0, 25.0, -50.0), eye_direction(0.0, -0.5, 1.0), head_direction(0.0, 1.0, 0.0);
-  eye_direction.Normalize();
-  PointT righthand_direction=Cross(head_direction, eye_direction).Unit();
-  head_direction=Cross( eye_direction, righthand_direction);
-
-  cout<<eye_direction.GetX()<<","<<eye_direction.GetY()<<","<<eye_direction.GetZ()<<endl;
-  cout<<head_direction.GetX()<<","<<head_direction.GetY()<<","<<head_direction.GetZ()<<endl;
-  cout<<righthand_direction.GetX()<<","<<righthand_direction.GetY()<<","<<righthand_direction.GetZ()<<endl;
-  
   PixelColor bmp_data[width*height+10];
 
-  //freopen("a.txt","w",stdout);
-  double x=-10.0, scale=1.0/width*height, y;
-  for(int i=0; i<width; i++){
-    y=-10.0*scale;
+  // //freopen("a.txt","w",stdout);
+  // double x=-10.0, scale=1.0/width*height, y;
+  // for(int i=0; i<width; i++){
+  //   y=-10.0*scale;
+  //   for(int j=0; j<height; j++){
+  //     RayT ray(camera, head_direction * y + righthand_direction * x + eye_direction * 20);
+  //     PointT color;
+  //     bool debug=0;
+  //     Tracer::RayTrace(ray, obj_vec, color, 0, 1.0, debug);
+  //     Color[i][j]=color;
+  //     bmp_data[i+j*width]=PointT::ToPixelColor(color);
+  //     y+=20.0*scale/height;
+  //   }
+  //   x+=20.0/width;
+  // }
+
+  Viewer my_viewer;
+  my_viewer.SetCameraPos(PointT(0.0, 25.0, -50.0));
+  my_viewer.SetEyeDirection(PointT(0.0, -0.5, 1.0));
+  my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
+  my_viewer.SetGeometryWidth(17.0);
+  my_viewer.SetDistance(20.0);
+  my_viewer.Init();
+
+  for(int i=0; i<width; i++)
     for(int j=0; j<height; j++){
-      RayT ray(camera, head_direction * y + righthand_direction * x + eye_direction * 20);
+      RayT ray=my_viewer.GetRay(width, height, i, j);
       PointT color;
       bool debug=0;
       Tracer::RayTrace(ray, obj_vec, color, 0, 1.0, debug);
       Color[i][j]=color;
       bmp_data[i+j*width]=PointT::ToPixelColor(color);
-      y+=20.0*scale/height;
     }
-    x+=20.0/width;
-  }
 
   OutputBmp(width, height, bmp_data, "result.bmp"); 
   
