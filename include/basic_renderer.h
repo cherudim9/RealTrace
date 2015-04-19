@@ -163,5 +163,51 @@ class SphereT: public Renderer{
   
 };
 
+class TriangleT: public Renderer{
+
+ public:
+  
+  TriangleT(){}
+
+ TriangleT(Renderer a, PointT _p0, PointT _p1, PointT _p2)
+   :Renderer(a), p0_(_p0), p1_(_p1), p2_(_p2), initialized_(0){
+    Init();
+  }
+
+  void Init(){
+    initialized_=1;
+    p1_=p1_-p0_;
+    p2_=p2_-p0_;
+    n_=Cross(p1_, p2_).Unit();
+  }
+
+  void SetP(int o, PointT p){
+    if (o==0) p0_=p;
+    if (o==1) p1_=p;
+    if (o==2) p2_=p;
+  }
+
+  PointT Getp(int o)const{
+    if (o==0) return p0_;
+    if (o==1) return p1_;
+    if (o==2) return p2_;
+    throw std::runtime_error("GetP in TriangleT");
+  }
+
+  double Intersect(const RayT &ray, PointT &ip)const;
+  
+  friend double Intersect(const TriangleT &triangle, const RayT &ray, PointT &ip);
+
+  PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const;
+
+  PointT GetColor(PointT surface_point)const;
+
+ private:
+  
+  PointT p0_, p1_, p2_, n_;
+  bool initialized_;
+  
+};
+
 
 #endif

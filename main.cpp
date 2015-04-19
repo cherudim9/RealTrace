@@ -28,7 +28,7 @@ int main(){
 
   if (choo==1){
 
-    obj_vec.resize(9);
+    obj_vec.resize(10);
 
     obj_vec[0]=new PlaneT();
     obj_vec[0]->SetReflect(0.0); 
@@ -114,6 +114,17 @@ int main(){
     ((SphereT*)obj_vec[8])->SetRadius(0.5);
     obj_vec[8]->SetLight(0.6);
 
+    obj_vec[9]=new TriangleT();
+    obj_vec[9]->SetReflect(1.0);
+    obj_vec[9]->SetRefract(0.0);
+    obj_vec[9]->SetDiffuse(0.5);
+    obj_vec[9]->SetRefractIndex(0.0);
+    obj_vec[9]->SetColor(PixelColor(150,150,150));
+    ((TriangleT*)obj_vec[9])->SetP(0,PointT(0,20,15));
+    ((TriangleT*)obj_vec[9])->SetP(2,PointT(10,6,20));
+    ((TriangleT*)obj_vec[9])->SetP(1,PointT(-10,6,20));
+    ((TriangleT*)obj_vec[9])->Init();
+
   }else{
 
   }
@@ -141,11 +152,14 @@ int main(){
   my_viewer.SetEyeDirection(PointT(0.0, -0.5, 1.0));
   my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
   my_viewer.SetGeometryWidth(17.0);
-  my_viewer.SetDistance(20.0);
+  my_viewer.SetDistance(17.0);
   my_viewer.Init();
 
+  Process render_process("Rendering whole", width*height, 1, 10);
+  render_process.Start();
   for(int i=0; i<width; i++)
     for(int j=0; j<height; j++){
+      render_process.Update(i*height+j);
       RayT ray=my_viewer.GetRay(width, height, i, j);
       PointT color;
       bool debug=0;
@@ -153,6 +167,7 @@ int main(){
       Color[i][j]=color;
       bmp_data[i+j*width]=PointT::ToPixelColor(color);
     }
+  render_process.Stop();
 
   OutputBmp(width, height, bmp_data, "result.bmp"); 
   

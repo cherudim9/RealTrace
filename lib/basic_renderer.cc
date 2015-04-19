@@ -127,3 +127,47 @@ PointT SphereT::GetColor(PointT surface_point)const{
   y=((y%h)+h)%h;
   return GetTGAFile()->GetColor(x,y);
 }
+
+double TriangleT::Intersect(const RayT &ray, PointT &ip)const{
+  //http://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
+  if (!initialized_)
+    throw std::runtime_error("triangle not initialized");
+  PointT tmp1=Cross(ray.GetR(), p2_);
+  double det=Dot(p1_, tmp1);
+  if (Sign(det)==0)
+    return -1.0;
+  double inv_det=1.0/det;
+  PointT tmp2=ray.GetO()-p0_;
+  double u=Dot(tmp2, tmp1)*inv_det;
+  if (u<0.0 || u>1.0)
+    return -1.0;
+  PointT tmp3=Cross(tmp2, p1_);
+  double v=Dot(ray.GetR(), tmp3)*inv_det;
+  if (v<0 || u+v>1.0)
+    return -1.0;
+  double ret=Dot(p2_, tmp3)*inv_det;
+  if (Sign(ret)<=0)
+    return -1.0;
+  ip=ray.GetO()+ray.GetR()*ret;
+  return ret;
+}
+
+double Intersect(const TriangleT &triangle, const RayT &ray, PointT &ip){
+  return triangle.Intersect(ray, ip);
+}
+
+PointT TriangleT::GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{
+  if (!initialized_)
+    throw std::runtime_error("triangle not initialized");
+  if (Sign(Dot(n_, from-surface_point))<0)
+    return -n_;
+  return n_;
+}
+
+PointT TriangleT::GetColor(PointT surface_point)const{
+  if (!initialized_)
+    throw std::runtime_error("triangle not initialized");
+  if (!Renderer::HasTexture())
+    return Renderer::GetColor();
+  
+}

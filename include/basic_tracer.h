@@ -4,7 +4,7 @@
 #include "basic_renderer.h"
 #include <vector>
 
-const int kMaxDepth=15;
+const int kMaxDepth=5;
 
 class Tracer{
 
