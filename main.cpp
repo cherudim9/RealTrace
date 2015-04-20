@@ -135,7 +135,11 @@ int main(){
   ObjectT sth;
   sth.LoadFromObj("object_file/dinosaur.2k.obj");
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   if(0){
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -160,7 +164,10 @@ int main(){
     z1=min(z1,i->MinZ()); z2=max(z2,i->MaxZ());
   }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   }t
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
   
