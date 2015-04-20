@@ -136,7 +136,11 @@ int main(){
   sth.LoadFromObj("object_file/dinosaur.2k.obj");
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   if(0){
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -165,7 +169,10 @@ int main(){
   }
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   }t
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
