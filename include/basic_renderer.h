@@ -3,6 +3,7 @@
 
 #include "basic_geometry.h"
 #include "basic_texture.h"
+#include <algorithm>
 
 const double kSpaceRefractIndex = 1.0;
 
@@ -193,6 +194,31 @@ class TriangleT: public Renderer{
     if (o==2) return p2_;
     throw std::runtime_error("GetP in TriangleT");
   }
+
+  double MinX()const{
+    return std::min(std::min(p0_.GetX(), (p0_+p1_).GetX()), (p0_+p2_).GetX());
+  }
+
+  double MinY()const{
+    return std::min(std::min(p0_.GetY(), (p0_+p1_).GetY()), (p0_+p2_).GetY());
+  }
+
+  double MinZ()const{
+    return std::min(std::min(p0_.GetZ(), (p0_+p1_).GetZ()), (p0_+p2_).GetZ());
+  }
+
+  double MaxX()const{
+    return std::max(std::max(p0_.GetX(), (p0_+p1_).GetX()), (p0_+p2_).GetX());
+  }
+
+  double MaxY()const{
+    return std::max(std::max(p0_.GetY(), (p0_+p1_).GetY()), (p0_+p2_).GetY());
+  }
+
+  double MaxZ()const{
+    return std::max(std::max(p0_.GetZ(), (p0_+p1_).GetZ()), (p0_+p2_).GetZ());
+  }
+
 
   double Intersect(const RayT &ray, PointT &ip)const;
   

@@ -14,14 +14,16 @@ HEADERS= include/basic_types.h	\
 	include/tga_input.h	\
 	include/basic_renderer.h	\
 	include/basic_texture.h	\
-	include/view.h
+	include/view.h	\
+	include/object_descripter.h
 
 SOURCES= main.cpp	\
 	lib/basic_geometry.cc 	\
 	lib/bmpio.cc	\
 	lib/basic_tracer.cc	\
 	lib/tga_input.cc	\
-	lib/basic_renderer.cc
+	lib/basic_renderer.cc	\
+	lib/object_descripter.cpp
 
 EXECUTABLE=main
 

@@ -31,6 +31,13 @@ class PointT{
   CoordinateT GetX()const{ return x_; }
   CoordinateT GetY()const{ return y_; }
   CoordinateT GetZ()const{ return z_; }
+  void SetX(CoordinateT x){ x_=x; }  
+  void SetY(CoordinateT y){ y_=y; }
+  void SetZ(CoordinateT z){ z_=z; }
+
+  PointT fuck(){
+    return PointT(y_,z_,x_);
+  }
   
   bool operator==(const PointT &b){ return Sign(x_-b.x_)==0 && Sign(y_-b.y_)==0 && Sign(z_-b.z_)==0; }
   bool operator!=(const PointT &b){ return ! ( (*this) == b ); }
@@ -42,6 +49,7 @@ class PointT{
   PointT operator-(const PointT &b)const{ return PointT(x_-b.x_, y_-b.y_, z_-b.z_); }
   PointT operator-()const{ return PointT(-x_, -y_, -z_); }
   PointT operator*(const CoordinateT &k)const{ return PointT(k*x_, k*y_, k*z_); }
+  PointT operator/(const CoordinateT &k)const{ return PointT(x_/k, y_/k, z_/k); }
   PointT& operator+=(const PointT &b){ x_+=b.x_, y_+=b.y_, z_+=b.z_; return *this; }
   friend PointT operator*(const CoordinateT &k, const PointT &a){ return PointT(k*a.x_, k*a.y_, k*a.z_); }
   PointT operator*(const PointT &b)const{ return PointT(x_*b.x_, y_*b.y_, z_*b.z_); }

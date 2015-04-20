@@ -134,7 +134,11 @@ int main(){
   
   ObjectT sth;
   sth.LoadFromObj("object_file/dinosaur.2k.obj");
+<<<<<<< Updated upstream
   if(0){
+=======
+
+>>>>>>> Stashed changes
   obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+8);
   double x1=1e30, x2=-1e30;
   double y1=1e30, y2=-1e30;
@@ -155,7 +159,10 @@ int main(){
     y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
     z1=min(z1,i->MinZ()); z2=max(z2,i->MaxZ());
   }
+<<<<<<< Updated upstream
   }t
+=======
+>>>>>>> Stashed changes
   
   double len=max(max(x2-x1,y2-y1),z2-z1);
 
