@@ -6,16 +6,17 @@
 #include "include/basic_tracer.h"
 #include "include/basic_texture.h"
 #include "include/view.h"
+#include "include/object_descripter.h"
 #include <vector>
 
 using namespace std;
 
-const int width=500;
-const int height=500;
+const int width=1024;
+const int height=768;
 
 PointT Color[2000][2000];
 
-vector<Renderer*> obj_vec;
+vector<Renderer*> obj_vec, lights;
 
 int main(){
 
@@ -50,7 +51,7 @@ int main(){
     ((PlaneT*)obj_vec[1])->SetNormal(PointT(-1.0, 0.0, 0.0));
 
     obj_vec[2]=new PlaneT();
-    obj_vec[2]->SetReflect(0.5); 
+    obj_vec[2]->SetReflect(0.0); 
     obj_vec[2]->SetRefract(0.0);
     obj_vec[2]->SetDiffuse(1.0);
     obj_vec[2]->SetRefractIndex(0.0);
@@ -129,6 +130,37 @@ int main(){
 
   }
 
+  using namespace ObjectDescripter;
+  
+  ObjectT sth;
+  sth.LoadFromObj("object_file/dinosaur.2k.obj");
+  if(0){
+  obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+8);
+  double x1=1e30, x2=-1e30;
+  double y1=1e30, y2=-1e30;
+  double z1=1e30, z2=-1e30;
+  PointT O(-20.0, -60.0, -49.5);
+  for(int i=0; i<sth.m_nVertices; i++)
+    sth.m_pVertexList[i]=sth.m_pVertexList[i]-O;
+  for(int j=0; j<sth.m_nTriangles; j++){
+    obj_vec.push_back(new TriangleT());
+    auto i=(TriangleT*)obj_vec.back();
+    i->SetDiffuse(0.5);
+    i->SetColor(PixelColor(0,255,255));
+    ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]].fuck()/5);
+    ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]].fuck()/5);
+    ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]].fuck()/5);
+    ((TriangleT*)i)->Init();
+    x1=min(x1,i->MinX()); x2=max(x2,i->MaxX());
+    y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
+    z1=min(z1,i->MinZ()); z2=max(z2,i->MaxZ());
+  }
+  }t
+  
+  double len=max(max(x2-x1,y2-y1),z2-z1);
+
+  printf("x1=%lf, y1=%lf, z1=%lf, len=%lf\n",x1, y1, z1, len);
+
   PixelColor bmp_data[width*height+10];
 
   // //freopen("a.txt","w",stdout);
@@ -147,12 +179,17 @@ int main(){
   //   x+=20.0/width;
   // }
 
+  lights.clear();
+  for(auto a: obj_vec)
+    if (a->IsLight())
+      lights.push_back(a);
+
   Viewer my_viewer;
-  my_viewer.SetCameraPos(PointT(0.0, 25.0, -50.0));
+  my_viewer.SetCameraPos(PointT(10.0, 25.0, -25.0));
   my_viewer.SetEyeDirection(PointT(0.0, -0.5, 1.0));
   my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
   my_viewer.SetGeometryWidth(17.0);
-  my_viewer.SetDistance(17.0);
+  my_viewer.SetDistance(22.0);
   my_viewer.Init();
 
   Process render_process("Rendering whole", width*height, 1, 10);
@@ -163,7 +200,7 @@ int main(){
       RayT ray=my_viewer.GetRay(width, height, i, j);
       PointT color;
       bool debug=0;
-      Tracer::RayTrace(ray, obj_vec, color, 0, 1.0, debug);
+      Tracer::RayTrace(ray, obj_vec, lights, color, 0, 1.0, debug);
       Color[i][j]=color;
       bmp_data[i+j*width]=PointT::ToPixelColor(color);
     }

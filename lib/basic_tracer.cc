@@ -16,7 +16,7 @@ CoordinateT Power(CoordinateT a, int n){
   return ret;
 }
 
-int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug){
+int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const std::vector<Renderer*> &lights, PointT &accumulate_color, int now_depth, double refract_index, bool debug){
   
   accumulate_color=PointT(0.0, 0.0, 0.0);
 
@@ -40,10 +40,10 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
   //let's calculate the color or ray_hit
 
   //-- first part
-  for(int i=0; i!=objs.size(); i++)
-    if (objs[i]->IsLight()){
+  for(int i=0; i!=lights.size(); i++)
+    if (lights[i]->IsLight()){
       //check whether the light is shadowed
-      SphereT *sphere = (SphereT*)objs[i]; //????
+      SphereT *sphere = (SphereT*)lights[i]; //????
       RayT light=RayT( sphere->GetCenter(), ray_hit - sphere->GetCenter());
       light=RayT(light.GetO()+sphere->GetRadius()*light.GetR(), light.GetR());
       int shadow_hit_id = light.FindFirstHitInVec(objs);
@@ -57,13 +57,13 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
       PointT L= ( sphere->GetCenter() - ray_hit ).Unit(); //light vector
       CoordinateT dot=Dot(N, L);
       if (Sign(dot)>0){
-        accumulate_color += objs[i]->GetIntensity() * objs[hit_id]->GetDiffuse() * dot * objs[hit_id]->GetColor(ray_hit);
+        accumulate_color += lights[i]->GetIntensity() * objs[hit_id]->GetDiffuse() * dot * objs[hit_id]->GetColor(ray_hit);
       }
 
       //specular light
       dot=Dot(V,L);
       if (Sign(dot)>0){
-        accumulate_color += objs[i]->GetIntensity() * objs[hit_id]->GetReflect() * Power(dot, 35) * objs[i]->GetColor(ray_hit);
+        accumulate_color += lights[i]->GetIntensity() * objs[hit_id]->GetReflect() * Power(dot, 35) * lights[i]->GetColor(ray_hit);
       }
     }
 
@@ -71,7 +71,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
   double reflect=objs[hit_id]->GetReflect();
   if (Sign(reflect)>0 && now_depth<kMaxDepth){
     PointT recurssive_color;
-    RayTrace( RayT(ray_hit, V), objs, recurssive_color, now_depth+1 , refract_index, debug);
+    RayTrace( RayT(ray_hit, V), objs,  lights, recurssive_color, now_depth+1 , refract_index, debug);
     accumulate_color += recurssive_color * reflect * objs[hit_id]->GetColor(ray_hit);
   }
 
@@ -83,7 +83,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
     double sin2= Sqr(index_ratio) * ( 1 - Sqr(cos) ) ;
     PointT T= index_ratio * I - ( index_ratio * cos + sqrt( 1 - sin2 ) ) * N ;//refractory direction
     PointT recurssive_color;
-    RayTrace( RayT(ray_hit, T), objs, recurssive_color, now_depth+1, objs[hit_id]->GetRefractIndex(ray.GetO()), debug);
+    RayTrace( RayT(ray_hit, T), objs, lights, recurssive_color, now_depth+1, objs[hit_id]->GetRefractIndex(ray.GetO()), debug);
     double ratio=1.0;//Beer's Law
     if (index_ratio < 1.0){
       ratio=exp(-0.010*(ray_hit-ray.GetO()).Length());
