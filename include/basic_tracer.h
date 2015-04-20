@@ -10,7 +10,7 @@ class Tracer{
 
  public:
 
-  static int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double rafract_index, bool debug);
+  static int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, const std::vector<Renderer*> &lights, PointT &accumulate_color, int now_depth, double rafract_index, bool debug);
 
 };
 

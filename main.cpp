@@ -8,17 +8,32 @@
 #include "include/view.h"
 #include "include/object_descripter.h"
 #include <vector>
+#include <sstream>
 
 using namespace std;
-
-const int width=1024;
-const int height=768;
 
 PointT Color[2000][2000];
 
 vector<Renderer*> obj_vec, lights;
 
-int main(){
+int ToNum(char *c){
+  stringstream O;
+  O<<string(c);
+  int ret;
+  O>>ret;
+  return ret;
+}
+
+int main(int argc, char **argv){
+
+  int width=100, height=100;
+
+  if (argc>=3){
+    width=ToNum(argv[1]);
+    height=ToNum(argv[2]);
+  }
+
+  printf("Started to render a %d x %d image...\n",width, height);
 
   BasicTextureVector textures;
 
@@ -74,7 +89,7 @@ int main(){
     obj_vec[4]->SetDiffuse(1.5);
     obj_vec[4]->SetRefractIndex(1.7);
     obj_vec[4]->SetColor(PixelColor(40,255,40));
-    ((SphereT*)obj_vec[4])->SetCenter(PointT(-10.0, 0.0, 20.0));
+    ((SphereT*)obj_vec[4])->SetCenter(PointT(-15.0, 0.0, 20.0));
     ((SphereT*)obj_vec[4])->SetRadius(2.0);
 
     obj_vec[5]=new SphereT();
@@ -115,16 +130,15 @@ int main(){
     ((SphereT*)obj_vec[8])->SetRadius(0.5);
     obj_vec[8]->SetLight(0.6);
 
-    obj_vec[9]=new TriangleT();
-    obj_vec[9]->SetReflect(1.0);
+    obj_vec[9]=new SphereT();
+    obj_vec[9]->SetReflect(0.0); 
     obj_vec[9]->SetRefract(0.0);
-    obj_vec[9]->SetDiffuse(0.5);
-    obj_vec[9]->SetRefractIndex(0.0);
-    obj_vec[9]->SetColor(PixelColor(150,150,150));
-    ((TriangleT*)obj_vec[9])->SetP(0,PointT(0,20,15));
-    ((TriangleT*)obj_vec[9])->SetP(2,PointT(10,6,20));
-    ((TriangleT*)obj_vec[9])->SetP(1,PointT(-10,6,20));
-    ((TriangleT*)obj_vec[9])->Init();
+    obj_vec[9]->SetDiffuse(0.0);
+    obj_vec[9]->SetRefractIndex(1.7);
+    obj_vec[9]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[9])->SetCenter(PointT(0.0, 50.0, 29.0));
+    ((SphereT*)obj_vec[9])->SetRadius(0.5);
+    obj_vec[9]->SetLight(0.6);
 
   }else{
 
@@ -134,24 +148,16 @@ int main(){
   
   ObjectT sth;
   sth.LoadFromObj("object_file/dinosaur.2k.obj");
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  if(0){
-=======
 
->>>>>>> Stashed changes
-=======
 
->>>>>>> Stashed changes
-=======
-
->>>>>>> Stashed changes
-  obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+8);
   double x1=1e30, x2=-1e30;
   double y1=1e30, y2=-1e30;
   double z1=1e30, z2=-1e30;
-  PointT O(-20.0, -60.0, -49.5);
+
+  if(1){
+  obj_vec.erase(obj_vec.begin()+5, obj_vec.begin()+8);
+  
+  PointT O(-20.0+15, -60.0, -49.5+10);
   for(int i=0; i<sth.m_nVertices; i++)
     sth.m_pVertexList[i]=sth.m_pVertexList[i]-O;
   for(int j=0; j<sth.m_nTriangles; j++){
@@ -167,22 +173,13 @@ int main(){
     y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
     z1=min(z1,i->MinZ()); z2=max(z2,i->MaxZ());
   }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  }t
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-  
+  }
+
   double len=max(max(x2-x1,y2-y1),z2-z1);
 
   printf("x1=%lf, y1=%lf, z1=%lf, len=%lf\n",x1, y1, z1, len);
 
-  PixelColor bmp_data[width*height+10];
+  PixelColor *bmp_data=new PixelColor[width*height+10];
 
   // //freopen("a.txt","w",stdout);
   // double x=-10.0, scale=1.0/width*height, y;
@@ -206,8 +203,8 @@ int main(){
       lights.push_back(a);
 
   Viewer my_viewer;
-  my_viewer.SetCameraPos(PointT(10.0, 25.0, -25.0));
-  my_viewer.SetEyeDirection(PointT(0.0, -0.5, 1.0));
+  my_viewer.SetCameraPos(PointT(-10.0, 10.0, -50.0));
+  my_viewer.SetEyeDirection(PointT(0.3, 0.0, 1.0));
   my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
   my_viewer.SetGeometryWidth(17.0);
   my_viewer.SetDistance(22.0);
