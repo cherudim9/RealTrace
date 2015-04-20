@@ -46,42 +46,42 @@ int main(int argc, char **argv){
 
     obj_vec.resize(10);
 
-    obj_vec[0]=new PlaneT();
+    obj_vec[0]=new SphereT();
     obj_vec[0]->SetReflect(0.0); 
     obj_vec[0]->SetRefract(0.0);
     obj_vec[0]->SetDiffuse(1.0);
     obj_vec[0]->SetRefractIndex(0.0);
     obj_vec[0]->SetColor(PixelColor(113,83,38));
-    ((PlaneT*)obj_vec[0])->SetO(PointT(0.0, -10.0, 0.0));
-    ((PlaneT*)obj_vec[0])->SetNormal(PointT(0.0, 1.0, 0.0));
+    ((SphereT*)obj_vec[0])->SetCenter(PointT(0.0, -1010.0, 0.0));
+    ((SphereT*)obj_vec[0])->SetRadius(1000.0);
     obj_vec[0]->SetTexture(textures.GetTexture(0));
 
-    obj_vec[1]=new PlaneT();
+    obj_vec[1]=new SphereT();
     obj_vec[1]->SetReflect(0.5); 
     obj_vec[1]->SetRefract(0.0);
     obj_vec[1]->SetDiffuse(1.0);
     obj_vec[1]->SetRefractIndex(0.0);
     obj_vec[1]->SetColor(PixelColor(0,0,230));
-    ((PlaneT*)obj_vec[1])->SetO(PointT(40.0, 0.0, 0.0));
-    ((PlaneT*)obj_vec[1])->SetNormal(PointT(-1.0, 0.0, 0.0));
+    ((SphereT*)obj_vec[1])->SetCenter(PointT(1040.0, 0.0, 0.0));
+    ((SphereT*)obj_vec[1])->SetRadius(1000.0);
 
-    obj_vec[2]=new PlaneT();
+    obj_vec[2]=new SphereT();
     obj_vec[2]->SetReflect(0.0); 
     obj_vec[2]->SetRefract(0.0);
     obj_vec[2]->SetDiffuse(1.0);
     obj_vec[2]->SetRefractIndex(0.0);
     obj_vec[2]->SetColor(PixelColor(230,230,0));
-    ((PlaneT*)obj_vec[2])->SetO(PointT(-25.0, 0.0, 0.0));
-    ((PlaneT*)obj_vec[2])->SetNormal(PointT(1.0, 0.0, 0.0));
+    ((SphereT*)obj_vec[2])->SetCenter(PointT(-1025.0, 0.0, 0.0));
+    ((SphereT*)obj_vec[2])->SetRadius(1000.0);
 
-    obj_vec[3]=new PlaneT();
+    obj_vec[3]=new SphereT();
     obj_vec[3]->SetReflect(0.7); 
     obj_vec[3]->SetRefract(0.0);
     obj_vec[3]->SetDiffuse(0.0);
     obj_vec[3]->SetRefractIndex(0.0);
     obj_vec[3]->SetColor(PixelColor(255,255,255));
-    ((PlaneT*)obj_vec[3])->SetO(PointT(0.0, 0.0, 30.0));
-    ((PlaneT*)obj_vec[3])->SetNormal(PointT(0.0, 0.0, 1.0));
+    ((SphereT*)obj_vec[3])->SetCenter(PointT(0.0, 0.0, 1030.0));
+    ((SphereT*)obj_vec[3])->SetRadius(1000.0);
 
     obj_vec[4]=new SphereT();
     obj_vec[4]->SetReflect(0.0); 
@@ -147,7 +147,7 @@ int main(int argc, char **argv){
   using namespace ObjectDescripter;
   
   ObjectT sth;
-  sth.LoadFromObj("object_file/dinosaur.2k.obj");
+  sth.LoadFromObj("object_file/fixed.perfect.dragon.100K.0.07.obj");
 
 
   double x1=1e30, x2=-1e30;
@@ -157,7 +157,7 @@ int main(int argc, char **argv){
   if(1){
   obj_vec.erase(obj_vec.begin()+5, obj_vec.begin()+8);
   
-  PointT O(-20.0+15, -60.0, -49.5+10);
+  PointT O(-0.7, -0.44, -1.0);
   for(int i=0; i<sth.m_nVertices; i++)
     sth.m_pVertexList[i]=sth.m_pVertexList[i]-O;
   for(int j=0; j<sth.m_nTriangles; j++){
@@ -165,9 +165,9 @@ int main(int argc, char **argv){
     auto i=(TriangleT*)obj_vec.back();
     i->SetDiffuse(0.5);
     i->SetColor(PixelColor(0,255,255));
-    ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]].fuck()/5);
-    ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]].fuck()/5);
-    ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]].fuck()/5);
+    ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]]*25);
+    ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]]*25);
+    ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]]*25);
     ((TriangleT*)i)->Init();
     x1=min(x1,i->MinX()); x2=max(x2,i->MaxX());
     y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
@@ -207,8 +207,11 @@ int main(int argc, char **argv){
   my_viewer.SetEyeDirection(PointT(0.3, 0.0, 1.0));
   my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
   my_viewer.SetGeometryWidth(17.0);
-  my_viewer.SetDistance(22.0);
+  my_viewer.SetDistance(15.0);
   my_viewer.Init();
+
+  Tracer my_tracer;
+  my_tracer.Init(obj_vec);
 
   Process render_process("Rendering whole", width*height, 1, 10);
   render_process.Start();
@@ -218,7 +221,7 @@ int main(int argc, char **argv){
       RayT ray=my_viewer.GetRay(width, height, i, j);
       PointT color;
       bool debug=0;
-      Tracer::RayTrace(ray, obj_vec, lights, color, 0, 1.0, debug);
+      my_tracer.RayTrace(ray, obj_vec, lights, color, 0, 1.0, debug);
       Color[i][j]=color;
       bmp_data[i+j*width]=PointT::ToPixelColor(color);
     }

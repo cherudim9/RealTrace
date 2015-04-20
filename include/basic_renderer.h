@@ -7,8 +7,6 @@
 
 const double kSpaceRefractIndex = 1.0;
 
-class Renderer;
-
 class RayT{
   
  public:
@@ -22,8 +20,6 @@ class RayT{
   PointT GetO()const{ return o_; }
   PointT GetR()const{ return r_; }
 
-  int FindFirstHitInVec(const std::vector<Renderer*> &objs)const;
-
  private:
   PointT o_, r_;
 
@@ -33,7 +29,8 @@ class RayT{
 class Renderer{
 
  public:
-  Renderer(){}
+ Renderer()
+   :reflect_coefficient_(0.0), refract_coefficient_(0.0), diffuse_coefficient_(0.0), refract_index_(0.0), color_(), light_(0), light_intensity_(0.0), has_texture_(0){}
   
  Renderer(double a, double b, double c, double d, PointT e, bool light, double f=0.0)
    :reflect_coefficient_(a), refract_coefficient_(b), diffuse_coefficient_(c), refract_index_(d), color_(e), light_(light), light_intensity_(f), has_texture_(0){
@@ -44,9 +41,16 @@ class Renderer{
   }
 
   virtual double Intersect(const RayT &r, PointT &ip)const{return 0.0;}
-  virtual PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{return PointT();}
 
+  virtual PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{return PointT();}
+  
   virtual void InitTexture(){}
+
+  virtual void DistanceToSlab(const PointT &d, CoordinateT &d1, CoordinateT &d2){ }
+
+  virtual CoordinateT GetBVHIndex(int depth)const{
+    return 0.0;
+  }
 
   CoordinateT GetReflect()const{ return reflect_coefficient_; }
   CoordinateT GetRefract()const{ return refract_coefficient_; }
@@ -158,6 +162,21 @@ class SphereT: public Renderer{
 
   PointT GetColor(PointT surface_point)const;
 
+  void DistanceToSlab(const PointT &d, CoordinateT &d1, CoordinateT &d2){ 
+    double tmp=Dot(d, center_);
+    d1=std::min(tmp-radius_, tmp+radius_);
+    d2=std::max(tmp-radius_, tmp+radius_);
+  }
+
+  CoordinateT GetBVHIndex(int depth)const{
+    if (depth%3==0)
+      return center_.GetX();
+    if (depth%3==1)
+      return center_.GetY();
+    //depth%3==2
+    return center_.GetZ();
+  }
+  
  private:
   PointT center_;
   CoordinateT radius_;
@@ -219,7 +238,6 @@ class TriangleT: public Renderer{
     return std::max(std::max(p0_.GetZ(), (p0_+p1_).GetZ()), (p0_+p2_).GetZ());
   }
 
-
   double Intersect(const RayT &ray, PointT &ip)const;
   
   friend double Intersect(const TriangleT &triangle, const RayT &ray, PointT &ip);
@@ -227,6 +245,21 @@ class TriangleT: public Renderer{
   PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const;
 
   PointT GetColor(PointT surface_point)const;
+
+  void DistanceToSlab(const PointT &d, CoordinateT &d1, CoordinateT &d2){
+    CoordinateT tmp1=Dot(d,p0_), tmp2=Dot(d,p0_+p1_), tmp3=Dot(d,p0_+p2_);
+    d1=std::min(std::min(tmp1,tmp2),tmp3);
+    d2=std::max(std::max(tmp1,tmp2),tmp3);
+  }
+
+  CoordinateT GetBVHIndex(int depth)const{
+    if (depth%3==0)
+      return p0_.GetX();
+    if (depth%3==1)
+      return p0_.GetY();
+    //depth%3==2
+    return p0_.GetZ();
+  }
 
  private:
   

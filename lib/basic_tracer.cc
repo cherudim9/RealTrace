@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
+#include <queue>
 using namespace std;
 
 CoordinateT Power(CoordinateT a, int n){
@@ -16,11 +17,67 @@ CoordinateT Power(CoordinateT a, int n){
   return ret;
 }
 
+int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs){
+  if (0){
+    double hit_dis=1e30;
+    int hit_ret=-1;
+    for(int i=0; i!=objs.size(); i++){
+      PointT ip;
+      double x=objs[i]->Intersect(ray, ip);
+      if (Sign(x)>=0)
+        if (x<hit_dis){
+          hit_dis=x;
+          hit_ret=i;
+        }
+    }
+    return hit_ret;
+  }
+  
+  priority_queue<pair<double, BVHRenderer*>> Q;
+  bool found=0;
+  double answer;
+  int hit_id;
+  Q.push(make_pair(-root_bvh_renderer->Intersect(ray), root_bvh_renderer));
+  while(!Q.empty()){
+    BVHRenderer *now_bvh_renderer=Q.top().second;
+    double estimated_distance=-Q.top().first;
+    Q.pop();
+    if (found && estimated_distance>answer)
+      continue;
+    if (now_bvh_renderer->IsLeaf()){
+      int i_number=0;
+      for(const auto &i: now_bvh_renderer->renderer_list_){
+        PointT ip;
+        double t=i->Intersect(ray, ip);
+        if (Sign(t)>0){
+          if (!found || (found && answer>t)){
+            found=1;
+            answer=t;
+            hit_id=now_bvh_renderer->before_number_+i_number;
+          }            
+        }
+        i_number++;
+      }
+    }else{
+      double tmp;
+      tmp=now_bvh_renderer->left_son_->Intersect(ray);
+      if (Sign(tmp)>=0)
+        Q.push(make_pair( -(tmp), now_bvh_renderer->left_son_));
+      tmp=now_bvh_renderer->right_son_->Intersect(ray);
+      if (Sign(tmp)>=0)
+        Q.push(make_pair( -(tmp), now_bvh_renderer->right_son_));
+    }
+  }
+  if (found)
+    return hit_id;
+  return -1;
+}
+
 int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const std::vector<Renderer*> &lights, PointT &accumulate_color, int now_depth, double refract_index, bool debug){
   
   accumulate_color=PointT(0.0, 0.0, 0.0);
 
-  int hit_id=ray.FindFirstHitInVec(objs);
+  int hit_id=FindFirstHitInVec(ray, objs);
   if (hit_id<0){
     return -1;
   }
@@ -46,7 +103,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const 
       SphereT *sphere = (SphereT*)lights[i]; //????
       RayT light=RayT( sphere->GetCenter(), ray_hit - sphere->GetCenter());
       light=RayT(light.GetO()+sphere->GetRadius()*light.GetR(), light.GetR());
-      int shadow_hit_id = light.FindFirstHitInVec(objs);
+      int shadow_hit_id = FindFirstHitInVec(light, objs);
       PointT light_hit;
       objs[shadow_hit_id]->Intersect(light, light_hit);
       bool Shadowed = ( light_hit != ray_hit );

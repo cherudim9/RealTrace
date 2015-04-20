@@ -63,21 +63,6 @@ PointT SphereT::GetSurfaceNormal(const PointT &surface_point, const PointT &from
   return normal_;
 }
 
-int RayT::FindFirstHitInVec(const std::vector<Renderer*> &objs)const{
-  double hit_dis=1e30;
-  int hit_ret=-1;
-  for(int i=0; i!=objs.size(); i++){
-    PointT ip;
-    double x=objs[i]->Intersect(*this, ip);
-    if (Sign(x)>=0)
-      if (x<hit_dis){
-        hit_dis=x;
-        hit_ret=i;
-      }
-  }
-  return hit_ret;
-}
-
 void PlaneT::InitTexture(){
   PointT tmp(1.0, 0.0, 0.0);
   if (tmp == normal_)
@@ -169,5 +154,5 @@ PointT TriangleT::GetColor(PointT surface_point)const{
     throw std::runtime_error("triangle not initialized");
   if (!Renderer::HasTexture())
     return Renderer::GetColor();
-  
+  throw std::runtime_error("GetColor in class TriangleT is not Contructed");
 }

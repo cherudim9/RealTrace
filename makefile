@@ -15,7 +15,8 @@ HEADERS= include/basic_types.h	\
 	include/basic_renderer.h	\
 	include/basic_texture.h	\
 	include/view.h	\
-	include/object_descripter.h
+	include/object_descripter.h	\
+	include/bounding_volume_hierachy.h
 
 SOURCES= main.cpp	\
 	lib/basic_geometry.cc 	\
@@ -23,7 +24,8 @@ SOURCES= main.cpp	\
 	lib/basic_tracer.cc	\
 	lib/tga_input.cc	\
 	lib/basic_renderer.cc	\
-	lib/object_descripter.cpp
+	lib/object_descripter.cpp	\
+	lib/bounding_volume_hierachy.cc
 
 EXECUTABLE=main
 
