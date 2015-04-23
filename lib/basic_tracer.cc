@@ -38,6 +38,8 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
   double answer;
   int hit_id;
   Q.push(make_pair(-root_bvh_renderer->Intersect(ray), root_bvh_renderer));
+  enter_times++;
+  int q_len=0;
   while(!Q.empty()){
     BVHRenderer *now_bvh_renderer=Q.top().second;
     double estimated_distance=-Q.top().first;
@@ -49,6 +51,7 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
       for(const auto &i: now_bvh_renderer->renderer_list_){
         PointT ip;
         double t=i->Intersect(ray, ip);
+        q_len++;
         if (Sign(t)>0){
           if (!found || (found && answer>t)){
             found=1;
@@ -61,6 +64,7 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
     }else{
       double tmp;
       tmp=now_bvh_renderer->left_son_->Intersect(ray);
+      q_len+=2;
       if (Sign(tmp)>=0)
         Q.push(make_pair( -(tmp), now_bvh_renderer->left_son_));
       tmp=now_bvh_renderer->right_son_->Intersect(ray);
@@ -68,6 +72,7 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
         Q.push(make_pair( -(tmp), now_bvh_renderer->right_son_));
     }
   }
+  q_len_tot+=q_len;
   if (found)
     return hit_id;
   return -1;

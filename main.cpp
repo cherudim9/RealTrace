@@ -62,6 +62,7 @@ int main(int argc, char **argv){
     obj_vec[1]->SetDiffuse(1.0);
     obj_vec[1]->SetRefractIndex(0.0);
     obj_vec[1]->SetColor(PixelColor(0,0,230));
+    obj_vec[1]->SetColor(PixelColor(230,230,0));
     ((SphereT*)obj_vec[1])->SetCenter(PointT(1040.0, 0.0, 0.0));
     ((SphereT*)obj_vec[1])->SetRadius(1000.0);
 
@@ -71,7 +72,7 @@ int main(int argc, char **argv){
     obj_vec[2]->SetDiffuse(1.0);
     obj_vec[2]->SetRefractIndex(0.0);
     obj_vec[2]->SetColor(PixelColor(230,230,0));
-    ((SphereT*)obj_vec[2])->SetCenter(PointT(-1025.0, 0.0, 0.0));
+    ((SphereT*)obj_vec[2])->SetCenter(PointT(-1040.0, 0.0, 0.0));
     ((SphereT*)obj_vec[2])->SetRadius(1000.0);
 
     obj_vec[3]=new SphereT();
@@ -80,17 +81,17 @@ int main(int argc, char **argv){
     obj_vec[3]->SetDiffuse(0.0);
     obj_vec[3]->SetRefractIndex(0.0);
     obj_vec[3]->SetColor(PixelColor(255,255,255));
-    ((SphereT*)obj_vec[3])->SetCenter(PointT(0.0, 0.0, 1030.0));
+    ((SphereT*)obj_vec[3])->SetCenter(PointT(0.0, 0.0, 1050.0));
     ((SphereT*)obj_vec[3])->SetRadius(1000.0);
 
     obj_vec[4]=new SphereT();
     obj_vec[4]->SetReflect(0.0); 
-    obj_vec[4]->SetRefract(0.0);
-    obj_vec[4]->SetDiffuse(1.5);
+    obj_vec[4]->SetRefract(1.0);
+    obj_vec[4]->SetDiffuse(0.1);
     obj_vec[4]->SetRefractIndex(1.7);
-    obj_vec[4]->SetColor(PixelColor(40,255,40));
-    ((SphereT*)obj_vec[4])->SetCenter(PointT(-15.0, 0.0, 20.0));
-    ((SphereT*)obj_vec[4])->SetRadius(2.0);
+    obj_vec[4]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[4])->SetCenter(PointT(2.0, 5.0, -20.0));
+    ((SphereT*)obj_vec[4])->SetRadius(7.0);
 
     obj_vec[5]=new SphereT();
     obj_vec[5]->SetReflect(0.0); 
@@ -155,7 +156,7 @@ int main(int argc, char **argv){
   double z1=1e30, z2=-1e30;
 
   if(1){
-  obj_vec.erase(obj_vec.begin()+5, obj_vec.begin()+8);
+  obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+8);
   
   PointT O(-0.7, -0.44, -1.0);
   for(int i=0; i<sth.m_nVertices; i++)
@@ -163,11 +164,11 @@ int main(int argc, char **argv){
   for(int j=0; j<sth.m_nTriangles; j++){
     obj_vec.push_back(new TriangleT());
     auto i=(TriangleT*)obj_vec.back();
-    i->SetDiffuse(0.5);
-    i->SetColor(PixelColor(0,255,255));
-    ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]]*25);
-    ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]]*25);
-    ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]]*25);
+    i->SetDiffuse(0.8);    
+    i->SetColor(PixelColor(255,255,255));
+    ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]]*20);
+    ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]]*20);
+    ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]]*20);
     ((TriangleT*)i)->Init();
     x1=min(x1,i->MinX()); x2=max(x2,i->MaxX());
     y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
@@ -226,6 +227,8 @@ int main(int argc, char **argv){
       bmp_data[i+j*width]=PointT::ToPixelColor(color);
     }
   render_process.Stop();
+
+  cout<<"average intersection test: "<<1.0*my_tracer.q_len_tot/my_tracer.enter_times<<endl;
 
   OutputBmp(width, height, bmp_data, "result.bmp"); 
   
