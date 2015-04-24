@@ -13,17 +13,22 @@ class Tracer{
  public:
 
   void Init(std::vector<Renderer*> &objs){
+    lights_.clear();
+    for(auto a: objs)
+      if (a->IsLight())
+	lights_.push_back(a);
+
     my_slab_collection_=new SlabCollection();
-    root_bvh_renderer=new BVHRenderer(6, my_slab_collection_);
+    root_bvh_renderer=new BVHRenderer(10, my_slab_collection_);
     Process tree_building_process("BVH building", 1, 1);
     tree_building_process.Start();
-    root_bvh_renderer->Init(objs.begin(), objs.end(), 0, 0);
+    root_bvh_renderer->Init(objs.begin(), objs.end(), 0);
     tree_building_process.Stop();
   }
 
   int FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs);
 
-  int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, const std::vector<Renderer*> &lights, PointT &accumulate_color, int now_depth, double rafract_index, bool debug);
+  int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double rafract_index, bool debug);
 
   int enter_times, q_len_tot;
 
@@ -31,6 +36,7 @@ class Tracer{
 
   BVHRenderer *root_bvh_renderer;
   SlabCollection *my_slab_collection_;
+  std::vector<Renderer*> lights_;
 
 };
 

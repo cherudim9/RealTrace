@@ -30,17 +30,17 @@ class Renderer{
 
  public:
  Renderer()
-   :reflect_coefficient_(0.0), refract_coefficient_(0.0), diffuse_coefficient_(0.0), refract_index_(0.0), color_(), light_(0), light_intensity_(0.0), has_texture_(0){}
+   :emission_(), reflect_coefficient_(0.0), refract_coefficient_(0.0), diffuse_coefficient_(0.0), refract_index_(0.0), color_(), light_(0), light_intensity_(0.0), has_texture_(0){}
   
- Renderer(double a, double b, double c, double d, PointT e, bool light, double f=0.0)
-   :reflect_coefficient_(a), refract_coefficient_(b), diffuse_coefficient_(c), refract_index_(d), color_(e), light_(light), light_intensity_(f), has_texture_(0){
+ Renderer(PointT z, double a, double b, double c, double d, PointT e, bool light, double f=0.0)
+   :emission_(z), reflect_coefficient_(a), refract_coefficient_(b), diffuse_coefficient_(c), refract_index_(d), color_(e), light_(light), light_intensity_(f), has_texture_(0){
   }
 
- Renderer(double a, double b, double c, double d, PixelColor e, bool light, double f=0.0)
-   :reflect_coefficient_(a), refract_coefficient_(b), diffuse_coefficient_(c), refract_index_(d), color_(e), light_(light), light_intensity_(f){
+ Renderer(PointT z, double a, double b, double c, double d, PixelColor e, bool light, double f=0.0)
+   :emission_(z), reflect_coefficient_(a), refract_coefficient_(b), diffuse_coefficient_(c), refract_index_(d), color_(e), light_(light), light_intensity_(f){
   }
 
-  virtual double Intersect(const RayT &r, PointT &ip)const{return 0.0;}
+  virtual double Intersect(const RayT &r, PointT &ip){return 0.0;}
 
   virtual PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{return PointT();}
   
@@ -52,6 +52,7 @@ class Renderer{
     return 0.0;
   }
 
+  PointT GetEmission()const{return emission_; }
   CoordinateT GetReflect()const{ return reflect_coefficient_; }
   CoordinateT GetRefract()const{ return refract_coefficient_; }
   CoordinateT GetDiffuse()const{ return diffuse_coefficient_; }
@@ -62,6 +63,7 @@ class Renderer{
   bool HasTexture()const{ return has_texture_; }
   TGAFILE* GetTGAFile()const{ return tga_file_; }
 
+  void SetEmission(PointT a){ emission_=a; }
   void SetReflect(double a){ reflect_coefficient_=a; }
   void SetRefract(double a){ refract_coefficient_=a; }
   void SetDiffuse(double a){ diffuse_coefficient_=a; }
@@ -76,6 +78,8 @@ class Renderer{
   }
   
  private:
+  PointT emission_;
+
   double reflect_coefficient_, refract_coefficient_, diffuse_coefficient_, refract_index_;
 
   PointT color_;
@@ -111,9 +115,9 @@ class PlaneT: public Renderer{
   
   void SetNormal(const PointT &p){ normal_=p; }
 
-  double Intersect(const RayT &ray, PointT &ip)const;
+  double Intersect(const RayT &ray, PointT &ip);
 
-  friend double Intersect(const PlaneT &plane, const RayT &ray, PointT &ip);
+  friend double Intersect(PlaneT &plane, const RayT &ray, PointT &ip);
 
   PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const;
 
@@ -136,9 +140,9 @@ class SphereT: public Renderer{
 
   CoordinateT GetRadius()const{ return radius_; }
 
-  double Intersect(const RayT &ray, PointT &ip)const;
+  double Intersect(const RayT &ray, PointT &ip);
 
-  friend double Intersect(const SphereT &sphere, const RayT &ray, PointT &ip);
+  friend double Intersect(SphereT &sphere, const RayT &ray, PointT &ip);
 
   PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const;
 
@@ -199,12 +203,20 @@ class TriangleT: public Renderer{
     p1_=p1_-p0_;
     p2_=p2_-p0_;
     n_=Cross(p1_, p2_).Unit();
+    n1_ = n1_ - n0_;
+    n2_ = n2_ - n0_;
   }
 
   void SetP(int o, PointT p){
     if (o==0) p0_=p;
     if (o==1) p1_=p;
     if (o==2) p2_=p;
+  }
+
+  void SetN(int o, PointT n){
+    if (o==0) n0_=n;
+    if (o==1) n1_=n;
+    if (o==2) n2_=n;
   }
 
   PointT Getp(int o)const{
@@ -238,9 +250,9 @@ class TriangleT: public Renderer{
     return std::max(std::max(p0_.GetZ(), (p0_+p1_).GetZ()), (p0_+p2_).GetZ());
   }
 
-  double Intersect(const RayT &ray, PointT &ip)const;
+  double Intersect(const RayT &ray, PointT &ip);
   
-  friend double Intersect(const TriangleT &triangle, const RayT &ray, PointT &ip);
+  friend double Intersect(TriangleT &triangle, const RayT &ray, PointT &ip);
 
   PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const;
 
@@ -263,7 +275,8 @@ class TriangleT: public Renderer{
 
  private:
   
-  PointT p0_, p1_, p2_, n_;
+  PointT p0_, p1_, p2_, n_, n0_, n1_, n2_;
+  double u_, v_;
   bool initialized_;
   
 };

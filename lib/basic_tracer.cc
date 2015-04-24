@@ -38,7 +38,6 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
   double answer;
   int hit_id;
   Q.push(make_pair(-root_bvh_renderer->Intersect(ray), root_bvh_renderer));
-  enter_times++;
   int q_len=0;
   while(!Q.empty()){
     BVHRenderer *now_bvh_renderer=Q.top().second;
@@ -72,13 +71,14 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
         Q.push(make_pair( -(tmp), now_bvh_renderer->right_son_));
     }
   }
+  enter_times++;
   q_len_tot+=q_len;
   if (found)
     return hit_id;
   return -1;
 }
 
-int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const std::vector<Renderer*> &lights, PointT &accumulate_color, int now_depth, double refract_index, bool debug){
+int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug){
   
   accumulate_color=PointT(0.0, 0.0, 0.0);
 
@@ -95,6 +95,8 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const 
   PointT ray_hit;
   objs[hit_id]->Intersect(ray, ray_hit);
 
+  accumulate_color += objs[hit_id]->GetEmission();
+
   PointT N=objs[hit_id]->GetSurfaceNormal(ray_hit, ray.GetO()); // normal vector
   PointT I = ( ray_hit - ray.GetO() ).Unit(); // incident light
   PointT V = ( I - 2.0 * Dot(I, N) * N ).Unit(); // reflected vector
@@ -102,10 +104,10 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const 
   //let's calculate the color or ray_hit
 
   //-- first part
-  for(int i=0; i!=lights.size(); i++)
-    if (lights[i]->IsLight()){
+  for(int i=0; i!=lights_.size(); i++)
+    if (lights_[i]->IsLight()){
       //check whether the light is shadowed
-      SphereT *sphere = (SphereT*)lights[i]; //????
+      SphereT *sphere = (SphereT*)lights_[i]; //????
       RayT light=RayT( sphere->GetCenter(), ray_hit - sphere->GetCenter());
       light=RayT(light.GetO()+sphere->GetRadius()*light.GetR(), light.GetR());
       int shadow_hit_id = FindFirstHitInVec(light, objs);
@@ -119,13 +121,13 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const 
       PointT L= ( sphere->GetCenter() - ray_hit ).Unit(); //light vector
       CoordinateT dot=Dot(N, L);
       if (Sign(dot)>0){
-        accumulate_color += lights[i]->GetIntensity() * objs[hit_id]->GetDiffuse() * dot * objs[hit_id]->GetColor(ray_hit);
+        accumulate_color += lights_[i]->GetIntensity() * objs[hit_id]->GetDiffuse() * dot * objs[hit_id]->GetColor(ray_hit);
       }
 
       //specular light
       dot=Dot(V,L);
       if (Sign(dot)>0){
-        accumulate_color += lights[i]->GetIntensity() * objs[hit_id]->GetReflect() * Power(dot, 35) * lights[i]->GetColor(ray_hit);
+        accumulate_color += lights_[i]->GetIntensity() * objs[hit_id]->GetReflect() * Power(dot, 35) * lights_[i]->GetColor(ray_hit);
       }
     }
 
@@ -133,7 +135,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const 
   double reflect=objs[hit_id]->GetReflect();
   if (Sign(reflect)>0 && now_depth<kMaxDepth){
     PointT recurssive_color;
-    RayTrace( RayT(ray_hit, V), objs,  lights, recurssive_color, now_depth+1 , refract_index, debug);
+    RayTrace( RayT(ray_hit, V), objs, recurssive_color, now_depth+1 , refract_index, debug);
     accumulate_color += recurssive_color * reflect * objs[hit_id]->GetColor(ray_hit);
   }
 
@@ -145,7 +147,7 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, const 
     double sin2= Sqr(index_ratio) * ( 1 - Sqr(cos) ) ;
     PointT T= index_ratio * I - ( index_ratio * cos + sqrt( 1 - sin2 ) ) * N ;//refractory direction
     PointT recurssive_color;
-    RayTrace( RayT(ray_hit, T), objs, lights, recurssive_color, now_depth+1, objs[hit_id]->GetRefractIndex(ray.GetO()), debug);
+    RayTrace( RayT(ray_hit, T), objs, recurssive_color, now_depth+1, objs[hit_id]->GetRefractIndex(ray.GetO()), debug);
     double ratio=1.0;//Beer's Law
     if (index_ratio < 1.0){
       ratio=exp(-0.010*(ray_hit-ray.GetO()).Length());

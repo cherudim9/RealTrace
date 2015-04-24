@@ -14,7 +14,7 @@ using namespace std;
 
 PointT Color[2000][2000];
 
-vector<Renderer*> obj_vec, lights;
+vector<Renderer*> obj_vec;
 
 int ToNum(char *c){
   stringstream O;
@@ -35,16 +35,28 @@ int main(int argc, char **argv){
 
   printf("Started to render a %d x %d image...\n",width, height);
 
-  BasicTextureVector textures;
+  BasicTextureVector my_textures;
+  Viewer my_viewer;
 
-  textures.AddTexture("textures/Wooden_desks.tga");
-  textures.AddTexture("textures/rock_textures/rock_02_hm.tga");
+  my_textures.AddTexture("textures/Wooden_desks.tga");
+  my_textures.AddTexture("textures/rock_textures/rock_02_hm.tga");
 
-  int choo=1;
+  using namespace ObjectDescripter;
 
-  if (choo==1){
+  int scene_number=1;
+  if (argc>=4)
+    scene_number=ToNum(argv[3]);
 
-    obj_vec.resize(10);
+  if (scene_number==1){
+
+    my_viewer.SetCameraPos(PointT(-10.0, 10.0, -50.0));
+    my_viewer.SetEyeDirection(PointT(0.3, 0.0, 1.0));
+    my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
+    my_viewer.SetGeometryWidth(17.0);
+    my_viewer.SetDistance(15.0);
+    my_viewer.Init();
+
+    obj_vec.resize(11);
 
     obj_vec[0]=new SphereT();
     obj_vec[0]->SetReflect(0.0); 
@@ -54,10 +66,10 @@ int main(int argc, char **argv){
     obj_vec[0]->SetColor(PixelColor(113,83,38));
     ((SphereT*)obj_vec[0])->SetCenter(PointT(0.0, -1010.0, 0.0));
     ((SphereT*)obj_vec[0])->SetRadius(1000.0);
-    obj_vec[0]->SetTexture(textures.GetTexture(0));
+    obj_vec[0]->SetTexture(my_textures.GetTexture(0));
 
     obj_vec[1]=new SphereT();
-    obj_vec[1]->SetReflect(0.5); 
+    obj_vec[1]->SetReflect(0.5);
     obj_vec[1]->SetRefract(0.0);
     obj_vec[1]->SetDiffuse(1.0);
     obj_vec[1]->SetRefractIndex(0.0);
@@ -76,12 +88,12 @@ int main(int argc, char **argv){
     ((SphereT*)obj_vec[2])->SetRadius(1000.0);
 
     obj_vec[3]=new SphereT();
-    obj_vec[3]->SetReflect(0.7); 
+    obj_vec[3]->SetReflect(0.7);
     obj_vec[3]->SetRefract(0.0);
     obj_vec[3]->SetDiffuse(0.0);
     obj_vec[3]->SetRefractIndex(0.0);
     obj_vec[3]->SetColor(PixelColor(255,255,255));
-    ((SphereT*)obj_vec[3])->SetCenter(PointT(0.0, 0.0, 1050.0));
+    ((SphereT*)obj_vec[3])->SetCenter(PointT(0.0, 0.0, 1100.0));
     ((SphereT*)obj_vec[3])->SetRadius(1000.0);
 
     obj_vec[4]=new SphereT();
@@ -119,7 +131,7 @@ int main(int argc, char **argv){
     obj_vec[7]->SetColor(PixelColor(255,255,255));
     ((SphereT*)obj_vec[7])->SetCenter(PointT(0.0, 5.0, -20.0));
     ((SphereT*)obj_vec[7])->SetRadius(3.0);
-    obj_vec[7]->SetTexture(textures.GetTexture(1));
+    obj_vec[7]->SetTexture(my_textures.GetTexture(1));
 
     obj_vec[8]=new SphereT();
     obj_vec[8]->SetReflect(0.0); 
@@ -141,80 +153,228 @@ int main(int argc, char **argv){
     ((SphereT*)obj_vec[9])->SetRadius(0.5);
     obj_vec[9]->SetLight(0.6);
 
-  }else{
+    obj_vec[10]=new SphereT();
+    obj_vec[10]->SetReflect(0.8); 
+    obj_vec[10]->SetRefract(0.0);
+    obj_vec[10]->SetDiffuse(0.0);
+    obj_vec[10]->SetRefractIndex(0.0);
+    obj_vec[10]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[10])->SetCenter(PointT(0.0, 0.0, -1100.0));
+    ((SphereT*)obj_vec[10])->SetRadius(1000.0);
 
-  }
+    ObjectT sth;
+    // sth.LoadFromObj("object_file/Buddha.obj");
+    sth.LoadFromObj("object_file/fixed.perfect.dragon.100K.0.07.obj");
+    sth.Init();
 
-  using namespace ObjectDescripter;
+    double x1=1e30, x2=-1e30;
+    double y1=1e30, y2=-1e30;
+    double z1=1e30, z2=-1e30;
+
+    obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+8);
   
-  ObjectT sth;
-  sth.LoadFromObj("object_file/fixed.perfect.dragon.100K.0.07.obj");
+    PointT O(-0.7, -0.44, -1.0);
+    for(int i=0; i<sth.m_nVertices; i++)
+      sth.m_pVertexList[i]=sth.m_pVertexList[i]-O;
+    for(int j=0; j<sth.m_nTriangles; j++){
+      obj_vec.push_back(new TriangleT());
+      auto i=(TriangleT*)obj_vec.back();
+      i->SetDiffuse(0.8);    
+      i->SetColor(PixelColor(255,255,255));
+      ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]]*25);
+      ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]]*25);
+      ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]]*25);
+      ((TriangleT*)i)->SetN(0,sth.vertex_normal_[sth.m_pTriangleList[j][0]]);
+      ((TriangleT*)i)->SetN(1,sth.vertex_normal_[sth.m_pTriangleList[j][1]]);
+      ((TriangleT*)i)->SetN(2,sth.vertex_normal_[sth.m_pTriangleList[j][2]]);
+      ((TriangleT*)i)->Init();
+      x1=min(x1,i->MinX()); x2=max(x2,i->MaxX());
+      y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
+      z1=min(z1,i->MinZ()); z2=max(z2,i->MaxZ());
+    }
 
+    double len=max(max(x2-x1,y2-y1),z2-z1);
 
-  double x1=1e30, x2=-1e30;
-  double y1=1e30, y2=-1e30;
-  double z1=1e30, z2=-1e30;
+    printf("x1=%lf, y1=%lf, z1=%lf, len=%lf\n",x1, y1, z1, len);
 
-  if(1){
-  obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+8);
+  }
   
-  PointT O(-0.7, -0.44, -1.0);
-  for(int i=0; i<sth.m_nVertices; i++)
-    sth.m_pVertexList[i]=sth.m_pVertexList[i]-O;
-  for(int j=0; j<sth.m_nTriangles; j++){
-    obj_vec.push_back(new TriangleT());
-    auto i=(TriangleT*)obj_vec.back();
-    i->SetDiffuse(0.8);    
-    i->SetColor(PixelColor(255,255,255));
-    ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]]*20);
-    ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]]*20);
-    ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]]*20);
-    ((TriangleT*)i)->Init();
-    x1=min(x1,i->MinX()); x2=max(x2,i->MaxX());
-    y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
-    z1=min(z1,i->MinZ()); z2=max(z2,i->MaxZ());
-  }
+  if (scene_number==2){
+
+    my_viewer.SetCameraPos(PointT(0.0, 10.0, -70.0));
+    my_viewer.SetEyeDirection(PointT(0.0,0.0,1.0));
+    my_viewer.SetHeadDirection(PointT(0.0,1.0,0.0));
+    my_viewer.SetGeometryWidth(10.0);
+    my_viewer.SetDistance(10.0);
+    my_viewer.Init();
+
+    obj_vec.resize(3);
+
+    obj_vec[0]=new SphereT();
+    obj_vec[0]->SetReflect(1.0); 
+    obj_vec[0]->SetRefract(0.0);
+    obj_vec[0]->SetDiffuse(1.0);
+    obj_vec[0]->SetRefractIndex(0.0);
+    obj_vec[0]->SetColor(PixelColor(113,83,38));
+    ((SphereT*)obj_vec[0])->SetCenter(PointT(0.0, -1010.0, 0.0));
+    ((SphereT*)obj_vec[0])->SetRadius(1000.0);
+    obj_vec[0]->SetTexture(my_textures.GetTexture(0));
+
+    obj_vec[1]=new SphereT();
+    obj_vec[1]->SetReflect(0.0); 
+    obj_vec[1]->SetRefract(0.0);
+    obj_vec[1]->SetDiffuse(0.0);
+    obj_vec[1]->SetRefractIndex(1.7);
+    obj_vec[1]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[1])->SetCenter(PointT(0.0, 30.0, 0.0));
+    ((SphereT*)obj_vec[1])->SetRadius(0.5);
+    obj_vec[1]->SetLight(0.8);
+
+    obj_vec[2]=new SphereT();
+    obj_vec[2]->SetReflect(0.0); 
+    obj_vec[2]->SetRefract(1.0);
+    obj_vec[2]->SetDiffuse(1.0);
+    obj_vec[2]->SetRefractIndex(1.7);
+    obj_vec[2]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[2])->SetCenter(PointT(0.0, 10.0, 0.0));
+    ((SphereT*)obj_vec[2])->SetRadius(10.0);
+
   }
 
-  double len=max(max(x2-x1,y2-y1),z2-z1);
+  if (scene_number==3){
 
-  printf("x1=%lf, y1=%lf, z1=%lf, len=%lf\n",x1, y1, z1, len);
+    my_viewer.SetCameraPos(PointT(50.0, 28.0, 0));
+    my_viewer.SetEyeDirection(PointT(0.0,0.0,1.0));
+    my_viewer.SetHeadDirection(PointT(0.0,1.0,0.0));
+    my_viewer.SetGeometryWidth(100.0);
+    my_viewer.SetDistance(10.0);
+    my_viewer.Init();
+
+    double R=120;     // radius
+    double T=30*M_PI/180.;
+    double D=R/cos(T);     //distance
+    double Z=62;
+    PointT C=PointT(0.275, 0.612, 0.949);
+
+    obj_vec.resize(5);
+
+    obj_vec[0]=new SphereT();
+    obj_vec[0]->SetEmission(C*6e-2);
+    obj_vec[0]->SetReflect(0.5); 
+    obj_vec[0]->SetRefract(0.0);
+    obj_vec[0]->SetDiffuse(0.0);
+    obj_vec[0]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[0])->SetCenter(PointT(50,28,Z)+PointT(cos(T),sin(T),0)*D);
+    ((SphereT*)obj_vec[0])->SetRadius(R);
+
+    obj_vec[1]=new SphereT();
+    obj_vec[1]->SetEmission(C*6e-2);
+    obj_vec[1]->SetReflect(0.5); 
+    obj_vec[1]->SetRefract(0.0);
+    obj_vec[1]->SetDiffuse(0.0);
+    obj_vec[1]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[1])->SetCenter(PointT(50,28,Z)+PointT(-cos(T),sin(T),0)*D);
+    ((SphereT*)obj_vec[1])->SetRadius(R);
+
+    obj_vec[2]=new SphereT();
+    obj_vec[2]->SetEmission(C*6e-2);
+    obj_vec[2]->SetReflect(0.5); 
+    obj_vec[2]->SetRefract(0.0);
+    obj_vec[2]->SetDiffuse(0.0);
+    obj_vec[2]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[2])->SetCenter(PointT(50,28,Z)+PointT(0,-1,0)*D);
+    ((SphereT*)obj_vec[2])->SetRadius(R);
+
+    obj_vec[3]=new SphereT();
+    obj_vec[3]->SetEmission(C*6e-2);
+    obj_vec[3]->SetReflect(0.5); 
+    obj_vec[3]->SetRefract(0.0);
+    obj_vec[3]->SetDiffuse(0.0);
+    obj_vec[3]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[3])->SetCenter(PointT(50,28,Z)+PointT(0,0,-1)*R*2*sqrt(2./3.));
+    ((SphereT*)obj_vec[3])->SetRadius(R);
+
+    obj_vec[4]=new SphereT(); 
+    obj_vec[4]->SetEmission(C*6e-2);
+    obj_vec[4]->SetReflect(0.5); 
+    obj_vec[4]->SetRefract(0.0);
+    obj_vec[4]->SetDiffuse(0.0);
+    obj_vec[4]->SetColor(PixelColor(255/2,255/2,255/2));
+    ((SphereT*)obj_vec[4])->SetCenter(PointT(50,28,Z)+PointT(0,0,-R*2*sqrt(2./3.)/3.));
+    ((SphereT*)obj_vec[4])->SetRadius(2*2*R*2*sqrt(2./3.)-R*2*sqrt(2./3.)/3.);
+
+  //   Sphere spheres[] = {//Scene: radius, position, emission, color, material
+
+//       Sphere(R, Vec(50,28,Z)+Vec( cos(T),sin(T),0)*D,    C*6e-2,Vec(1,1,1)*.996, SPEC), //red
+//       Sphere(R, Vec(50,28,Z)+Vec(-cos(T),sin(T),0)*D,    C*6e-2,Vec(1,1,1)*.996, SPEC), //grn
+//       Sphere(R, Vec(50,28,Z)+Vec(0,-1,0)*D,              C*6e-2,Vec(1,1,1)*.996, SPEC), //blue
+//       Sphere(R, Vec(50,28,Z)+Vec(0,0,-1)*R*2*sqrt(2./3.),C*0e-2,Vec(1,1,1)*.996, SPEC), //back
+//       Sphere(2*2*R*2*sqrt(2./3.)-R*2*sqrt(2./3.)/3., Vec(50,28,Z)+Vec(0,0,-R*2*sqrt(2./3.)/3.),   Vec(1,1,1)*0,Vec(1,1,1)*.5, SPEC), //front
+// };
+
+  }
+
+  if (scene_number==4){
+
+    my_viewer.SetCameraPos(PointT(5.0, 10.0, -70.0));
+    my_viewer.SetEyeDirection(PointT(0.0,0.0,1.0));
+    my_viewer.SetHeadDirection(PointT(0.0,1.0,0.0));
+    my_viewer.SetGeometryWidth(10.0);
+    my_viewer.SetDistance(26.0);
+    my_viewer.Init();
+
+    obj_vec.resize(1);
+
+    obj_vec[0]=new SphereT();
+    obj_vec[0]->SetReflect(0.0); 
+    obj_vec[0]->SetRefract(0.0);
+    obj_vec[0]->SetDiffuse(0.0);
+    obj_vec[0]->SetRefractIndex(0.0);
+    obj_vec[0]->SetColor(PixelColor(255,255,255));
+    ((SphereT*)obj_vec[0])->SetCenter(PointT(0.0, 100.0, -100.0));
+    ((SphereT*)obj_vec[0])->SetRadius(1.0);
+    obj_vec[0]->SetLight(1.0);
+
+    ObjectT sth;
+    // sth.LoadFromObj("object_file/Buddha.obj");
+    sth.LoadFromObj("object_file/Buddha.obj");
+    sth.Init();
+
+    double x1=1e30, x2=-1e30;
+    double y1=1e30, y2=-1e30;
+    double z1=1e30, z2=-1e30;
+  
+    PointT O(-0.4,-1.0,-0.4);
+    for(int i=0; i<sth.m_nVertices; i++)
+      sth.m_pVertexList[i]=sth.m_pVertexList[i]-O;
+    for(int j=0; j<sth.m_nTriangles; j++){
+      obj_vec.push_back(new TriangleT());
+      auto i=(TriangleT*)obj_vec.back();
+      i->SetDiffuse(0.8);    
+      i->SetColor(PixelColor(255,255,255));
+      ((TriangleT*)i)->SetP(0,sth.m_pVertexList[sth.m_pTriangleList[j][0]]*10);
+      ((TriangleT*)i)->SetP(1,sth.m_pVertexList[sth.m_pTriangleList[j][1]]*10);
+      ((TriangleT*)i)->SetP(2,sth.m_pVertexList[sth.m_pTriangleList[j][2]]*10);
+      ((TriangleT*)i)->SetN(0,sth.vertex_normal_[sth.m_pTriangleList[j][0]]);
+      ((TriangleT*)i)->SetN(1,sth.vertex_normal_[sth.m_pTriangleList[j][1]]);
+      ((TriangleT*)i)->SetN(2,sth.vertex_normal_[sth.m_pTriangleList[j][2]]);
+      ((TriangleT*)i)->Init();
+      x1=min(x1,i->MinX()); x2=max(x2,i->MaxX());
+      y1=min(y1,i->MinY()); y2=max(y2,i->MaxY());
+      z1=min(z1,i->MinZ()); z2=max(z2,i->MaxZ());
+    }
+
+    double len=max(max(x2-x1,y2-y1),z2-z1);
+
+    printf("x1=%lf, y1=%lf, z1=%lf, len=%lf\n",x1, y1, z1, len);
+  }
 
   PixelColor *bmp_data=new PixelColor[width*height+10];
-
-  // //freopen("a.txt","w",stdout);
-  // double x=-10.0, scale=1.0/width*height, y;
-  // for(int i=0; i<width; i++){
-  //   y=-10.0*scale;
-  //   for(int j=0; j<height; j++){
-  //     RayT ray(camera, head_direction * y + righthand_direction * x + eye_direction * 20);
-  //     PointT color;
-  //     bool debug=0;
-  //     Tracer::RayTrace(ray, obj_vec, color, 0, 1.0, debug);
-  //     Color[i][j]=color;
-  //     bmp_data[i+j*width]=PointT::ToPixelColor(color);
-  //     y+=20.0*scale/height;
-  //   }
-  //   x+=20.0/width;
-  // }
-
-  lights.clear();
-  for(auto a: obj_vec)
-    if (a->IsLight())
-      lights.push_back(a);
-
-  Viewer my_viewer;
-  my_viewer.SetCameraPos(PointT(-10.0, 10.0, -50.0));
-  my_viewer.SetEyeDirection(PointT(0.3, 0.0, 1.0));
-  my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
-  my_viewer.SetGeometryWidth(17.0);
-  my_viewer.SetDistance(15.0);
-  my_viewer.Init();
 
   Tracer my_tracer;
   my_tracer.Init(obj_vec);
 
-  Process render_process("Rendering whole", width*height, 1, 10);
+  Process render_process("Rendering whole", width*height, 1, width*height/100);
   render_process.Start();
   for(int i=0; i<width; i++)
     for(int j=0; j<height; j++){
@@ -222,11 +382,13 @@ int main(int argc, char **argv){
       RayT ray=my_viewer.GetRay(width, height, i, j);
       PointT color;
       bool debug=0;
-      my_tracer.RayTrace(ray, obj_vec, lights, color, 0, 1.0, debug);
+      my_tracer.RayTrace(ray, obj_vec, color, 0, 1.0, debug);
       Color[i][j]=color;
       bmp_data[i+j*width]=PointT::ToPixelColor(color);
     }
   render_process.Stop();
+
+  cout<<"total first hit test: "<<my_tracer.enter_times<<endl;
 
   cout<<"average intersection test: "<<1.0*my_tracer.q_len_tot/my_tracer.enter_times<<endl;
 

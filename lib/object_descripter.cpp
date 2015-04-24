@@ -272,6 +272,30 @@ namespace ObjectDescripter
       return true;
 
     }
+
+  void ObjectT::Init(){
+    triangle_normal_=new PointT[m_nTriangles];
+    vertex_triangle_relation_number_=new int[m_nVertices];
+    for(int i=0; i<m_nVertices; i++)
+      vertex_triangle_relation_number_[i]=0;
+    for(int i=0; i<m_nTriangles; i++){
+      triangle_normal_[i] = Cross( m_pVertexList[ m_pTriangleList[i][2] ] - m_pVertexList[ m_pTriangleList[i][0] ],
+                                   m_pVertexList[ m_pTriangleList[i][1] ] - m_pVertexList[ m_pTriangleList[i][0] ] ).Unit();
+      for(int o=0; o<3; o++)
+        vertex_triangle_relation_number_[ m_pTriangleList[i][o] ]++;
+    }
+    vertex_normal_=new PointT[m_nVertices];
+    for(int i=0; i<m_nVertices; i++)
+      vertex_normal_[i]=PointT();
+    for(int i=0; i<m_nTriangles; i++)
+      for(int o=0; o<3; o++){
+        int x=m_pTriangleList[i][o];
+        vertex_normal_[x] += triangle_normal_[i] / vertex_triangle_relation_number_[x];
+      }
   }
+
+}
+
+
 
 

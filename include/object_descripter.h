@@ -41,6 +41,8 @@ namespace ObjectDescripter
         void Destroy();
         bool LoadFromObj(const char* fn);
         bool SaveToObj(const char* fn);
+
+	void Init();
         
     protected:
         bool Parse(FILE* fp);
@@ -52,6 +54,10 @@ namespace ObjectDescripter
         int             m_nTriangles;
         PointT*          m_pVertexList;
         Array<int,3>*   m_pTriangleList;
+	PointT* triangle_normal_, *vertex_normal_;
+	int *vertex_triangle_relation_number_;
+	int **vertex_triangle_relation_;
+
     };
 
 }

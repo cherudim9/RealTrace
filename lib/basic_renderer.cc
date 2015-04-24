@@ -2,15 +2,15 @@
 
 using namespace std;
 
-double Intersect(const SphereT &sphere, const RayT &ray, PointT &ip){
+double Intersect(SphereT &sphere, const RayT &ray, PointT &ip){
   return sphere.Intersect(ray, ip);
 }  
 
-double Intersect(const PlaneT &pl, const RayT &ray, PointT &ip){
+double Intersect(PlaneT &pl, const RayT &ray, PointT &ip){
   return pl.Intersect(ray, ip);
 }
 
-double PlaneT::Intersect(const RayT &ray, PointT &ip)const{
+double PlaneT::Intersect(const RayT &ray, PointT &ip){
   PointT rr=ray.GetR(), ro=ray.GetO();
   if ( Sign(Dot(rr, normal_)) == 0)
     return -1.0;
@@ -26,7 +26,7 @@ double PlaneT::Intersect(const RayT &ray, PointT &ip)const{
   return ret;
 }
 
-double SphereT::Intersect(const RayT &ray, PointT &ip)const{
+double SphereT::Intersect(const RayT &ray, PointT &ip){
   PointT rr=ray.GetR(), ro=ray.GetO();
   ro=ro-center_;
   //solve At^2+bt+c=0
@@ -113,7 +113,7 @@ PointT SphereT::GetColor(PointT surface_point)const{
   return GetTGAFile()->GetColor(x,y);
 }
 
-double TriangleT::Intersect(const RayT &ray, PointT &ip)const{
+double TriangleT::Intersect(const RayT &ray, PointT &ip){
   //http://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
   if (!initialized_)
     throw std::runtime_error("triangle not initialized");
@@ -123,12 +123,12 @@ double TriangleT::Intersect(const RayT &ray, PointT &ip)const{
     return -1.0;
   double inv_det=1.0/det;
   PointT tmp2=ray.GetO()-p0_;
-  double u=Dot(tmp2, tmp1)*inv_det;
-  if (u<0.0 || u>1.0)
+  u_=Dot(tmp2, tmp1)*inv_det;
+  if (u_<0.0 || u_>1.0)
     return -1.0;
   PointT tmp3=Cross(tmp2, p1_);
-  double v=Dot(ray.GetR(), tmp3)*inv_det;
-  if (v<0 || u+v>1.0)
+  v_=Dot(ray.GetR(), tmp3)*inv_det;
+  if (v_<0 || u_+v_>1.0)
     return -1.0;
   double ret=Dot(p2_, tmp3)*inv_det;
   if (Sign(ret)<=0)
@@ -137,16 +137,17 @@ double TriangleT::Intersect(const RayT &ray, PointT &ip)const{
   return ret;
 }
 
-double Intersect(const TriangleT &triangle, const RayT &ray, PointT &ip){
+double Intersect(TriangleT &triangle, const RayT &ray, PointT &ip){
   return triangle.Intersect(ray, ip);
 }
 
 PointT TriangleT::GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{
   if (!initialized_)
     throw std::runtime_error("triangle not initialized");
-  if (Sign(Dot(n_, from-surface_point))<0)
-    return -n_;
-  return n_;
+  PointT ret = n0_ + n1_ * u_ + n2_ * v_;
+  if (Sign(Dot(ret, from-surface_point))<0)
+    return -ret;
+  return ret;
 }
 
 PointT TriangleT::GetColor(PointT surface_point)const{
