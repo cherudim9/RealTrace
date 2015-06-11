@@ -25,7 +25,8 @@ SOURCES= main.cpp	\
 	lib/tga_input.cc	\
 	lib/basic_renderer.cc	\
 	lib/object_descripter.cpp	\
-	lib/bounding_volume_hierachy.cc
+	lib/bounding_volume_hierachy.cc	\
+	lib/basic_types.cc
 
 EXECUTABLE=main
 

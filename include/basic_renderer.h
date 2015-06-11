@@ -30,15 +30,7 @@ class Renderer{
 
  public:
  Renderer()
-   :emission_(), reflect_coefficient_(0.0), refract_coefficient_(0.0), diffuse_coefficient_(0.0), refract_index_(0.0), color_(), light_(0), light_intensity_(0.0), has_texture_(0){}
-  
- Renderer(PointT z, double a, double b, double c, double d, PointT e, bool light, double f=0.0)
-   :emission_(z), reflect_coefficient_(a), refract_coefficient_(b), diffuse_coefficient_(c), refract_index_(d), color_(e), light_(light), light_intensity_(f), has_texture_(0){
-  }
-
- Renderer(PointT z, double a, double b, double c, double d, PixelColor e, bool light, double f=0.0)
-   :emission_(z), reflect_coefficient_(a), refract_coefficient_(b), diffuse_coefficient_(c), refract_index_(d), color_(e), light_(light), light_intensity_(f){
-  }
+   :id_(-1), emission_(), reflect_coefficient_(0.0), refract_coefficient_(0.0), diffuse_coefficient_(0.0), refract_index_(0.0), color_(), light_(0), light_intensity_(0.0), has_texture_(0){}
 
   virtual double Intersect(const RayT &r, PointT &ip){return 0.0;}
 
@@ -52,17 +44,20 @@ class Renderer{
     return 0.0;
   }
 
+  int GetId()const{ return id_; }
   PointT GetEmission()const{return emission_; }
   CoordinateT GetReflect()const{ return reflect_coefficient_; }
   CoordinateT GetRefract()const{ return refract_coefficient_; }
   CoordinateT GetDiffuse()const{ return diffuse_coefficient_; }
-  virtual CoordinateT GetRefractIndex(PointT p=PointT())const{return refract_index_; }
+  virtual CoordinateT GetRefractIndex(PointT p=PointT(), PointT q=PointT())const{return refract_index_; }
   virtual PointT GetColor(PointT surface_point=PointT())const{ return color_; }
   bool IsLight(){ return light_; }
   CoordinateT GetIntensity()const{ return light_intensity_; }
   bool HasTexture()const{ return has_texture_; }
   TGAFILE* GetTGAFile()const{ return tga_file_; }
 
+  void SetId(int x){ id_=x; }
+  void SetEmission(double x, double y, double z){ emission_=PointT(x,y,z); }
   void SetEmission(PointT a){ emission_=a; }
   void SetReflect(double a){ reflect_coefficient_=a; }
   void SetRefract(double a){ refract_coefficient_=a; }
@@ -78,6 +73,8 @@ class Renderer{
   }
   
  private:
+  int id_;
+
   PointT emission_;
 
   double reflect_coefficient_, refract_coefficient_, diffuse_coefficient_, refract_index_;
@@ -152,16 +149,20 @@ class SphereT: public Renderer{
 
   bool Inside(const PointT &point)const{
     return Sign( ( point - center_ ).Length2() - Sqr(radius_) ) < 0;
+ }
+
+  bool Outside(const PointT &point)const{
+    return Sign( ( point - center_ ).Length2() - Sqr(radius_) ) > 0;
   }
 
   bool OnBroader(const PointT &point)const{
     return Sign( ( point - center_ ).Length2() - Sqr(radius_) ) == 0;
   }
 
-  CoordinateT GetRefractIndex(PointT p=PointT())const{
-    if (!Inside(p))
+  CoordinateT GetRefractIndex(PointT p=PointT(), PointT q=PointT())const{
+    if (!Inside((p+q)*0.5))
       return Renderer::GetRefractIndex();
-    return kSpaceRefractIndex / Renderer::GetRefractIndex();
+    return kSpaceRefractIndex;// / Renderer::GetRefractIndex();
   }
 
   PointT GetColor(PointT surface_point)const;

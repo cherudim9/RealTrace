@@ -102,12 +102,12 @@ PointT SphereT::GetColor(PointT surface_point)const{
   if (!Renderer::HasTexture())
     return Renderer::GetColor();
   int w=GetTGAFile()->imageWidth, h=GetTGAFile()->imageHeight;
-  surface_point=surface_point-GetCenter();
-  double latitude=acos( surface_point.GetY() / GetRadius() );
-  double longitude=atan( surface_point.GetX() / surface_point.GetZ() );
+  PointT d=(surface_point-GetCenter()).Unit();
+  double u = 0.5 + atan(2.0 * d.GetX() / d.GetZ()) / 2.0 / kPI;
+  double v = 0.5 - asin(d.GetY()) / kPI;
   int x,y;
-  x=int(latitude*w);
-  y=int(longitude*h);
+  x=int(u*w);
+  y=int(v*h);
   x=((x%w)+w)%w;
   y=((y%h)+h)%h;
   return GetTGAFile()->GetColor(x,y);
@@ -144,7 +144,7 @@ double Intersect(TriangleT &triangle, const RayT &ray, PointT &ip){
 PointT TriangleT::GetSurfaceNormal(const PointT &surface_point, const PointT &from)const{
   if (!initialized_)
     throw std::runtime_error("triangle not initialized");
-  PointT ret = n0_ + n1_ * u_ + n2_ * v_;
+  PointT ret = (n0_ + n1_ * u_ + n2_ * v_).Unit();
   if (Sign(Dot(ret, from-surface_point))<0)
     return -ret;
   return ret;

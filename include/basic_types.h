@@ -1,6 +1,8 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
+#include <cstdlib>
+
 typedef unsigned char BYTE;//8 bits
 typedef unsigned short WORD;//16 bits
 typedef unsigned int DWORD;//32 bits
@@ -22,12 +24,15 @@ class PixelColor{
   BYTE r_, g_, b_;
 };
 
-const double eps=1e-10;
+const double eps=1e-7;
+const double kPI=3.14159265358979323846;
 
 template<class T>
 int Sign(T a){
   if (a>-eps) return a>eps;
   return -1;
 }
+
+double RandUnit();
 
 #endif

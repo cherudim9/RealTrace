@@ -33,7 +33,7 @@ class Viewer{
     head_direction_=Cross(eye_direction_, righthand_direction_);
   }
 
-  RayT GetRay(int picture_w, int picture_h, int picture_i, int picture_j)const{
+  RayT GetRay(int picture_w, int picture_h, double picture_i, double picture_j)const{
     if (!init_)
       throw std::runtime_error("Viewer not initialized yet");
     double geometry_height_ = geometry_width_ / picture_w * picture_h;

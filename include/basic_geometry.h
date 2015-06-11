@@ -16,7 +16,8 @@ T Sqr(const T &a){
 class PointT{
 
  public:
-  PointT(){}
+  PointT()
+    :x_(0.0), y_(0.0), z_(0.0){}
 
   PointT(CoordinateT x, CoordinateT y, CoordinateT z)
     :x_(x), y_(y), z_(z){
@@ -49,12 +50,17 @@ class PointT{
   PointT operator-(const PointT &b)const{ return PointT(x_-b.x_, y_-b.y_, z_-b.z_); }
   PointT operator-()const{ return PointT(-x_, -y_, -z_); }
   PointT operator*(const CoordinateT &k)const{ return PointT(k*x_, k*y_, k*z_); }
+  PointT operator*(const int &k)const{ return PointT(k*x_, k*y_, k*z_); }
+  PointT& operator*=(const CoordinateT &k){ x_*=k, y_*=k, z_*=k; return *this; }
   PointT operator/(const CoordinateT &k)const{ return PointT(x_/k, y_/k, z_/k); }
   PointT& operator+=(const PointT &b){ x_+=b.x_, y_+=b.y_, z_+=b.z_; return *this; }
   friend PointT operator*(const CoordinateT &k, const PointT &a){ return PointT(k*a.x_, k*a.y_, k*a.z_); }
   PointT operator*(const PointT &b)const{ return PointT(x_*b.x_, y_*b.y_, z_*b.z_); }
   friend PointT Cross(const PointT &a, const PointT &b);
   friend CoordinateT Dot(const PointT &a, const PointT &b);
+  bool IsUnit()const{ return Sign(Length()-1)==0; }
+
+  PointT GammaCorrect()const{ return PointT(pow(x_, 1/2.2), pow(y_, 1/2.2), pow(z_, 1/2.2)); }
 
  private:
   CoordinateT x_, y_, z_;
