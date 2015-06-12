@@ -76,8 +76,6 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
         Q.push(make_pair( -(tmp), now_bvh_renderer->right_son_));
     }
   }
-  enter_times++;
-  q_len_tot+=q_len;
   if (found)
     return hit_id;
   return -1;
