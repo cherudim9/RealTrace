@@ -108,21 +108,21 @@ class FilePath {
     return file.is_open();
   }
   
-  static void CheckForOpen(const std::string& path, const std::ifstream& stream) throw(std::runtime_error){
+  static void CheckForOpen(const std::string& path, const std::ifstream& stream){
     if (!stream){
-      throw std::runtime_error("Failed to open " + path);
+      //      throw std::runtime_error("Failed to open " + path);
     }
   }
 
-  static void CheckForCreation(const std::string& path, const std::ofstream& stream) throw(std::runtime_error){
+  static void CheckForCreation(const std::string& path, const std::ofstream& stream) {
     if (!stream){
-      throw std::runtime_error("Failed to create " + path);
+      //throw std::runtime_error("Failed to create " + path);
     }
   }
   
-  static void CheckForExistence(const std::string& path) throw(std::runtime_error){
+  static void CheckForExistence(const std::string& path) {
     if (FilePath::Exist(path)){
-      throw std::runtime_error("Already exists: " + path);
+      //throw std::runtime_error("Already exists: " + path);
     }
   }
 
