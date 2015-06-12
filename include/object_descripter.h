@@ -5,6 +5,7 @@
 #include <cassert>
 #include "basic_geometry.h"
 #include <vector>
+#include <cstring>
 
 namespace ObjectDescripter
 {
