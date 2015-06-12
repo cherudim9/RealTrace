@@ -432,7 +432,7 @@ int main(int argc, char **argv){
   #pragma omp parallel for schedule(dynamic,1) 
   for(int i=0; i<width; i++)
     for(int j=0, last_hit_seq=-1; j<height; j++){
-      render_process.Update(i*height+j);
+      //   render_process.Update(i*height+j);
       bool debug=0;
       PointT color;
       int im=subpixel_size, jm=im;
