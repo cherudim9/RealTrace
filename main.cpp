@@ -75,7 +75,7 @@ int main(int argc, char **argv){
     my_viewer.SetEyeDirection(PointT(0.3, 0.0, 1.0));
     my_viewer.SetHeadDirection(PointT(0.0, 1.0, 0.0));
     my_viewer.SetGeometryWidth(17.0);
-    my_viewer.SetDistance(15.0);
+    my_viewer.SetDistance(13.0);
     my_viewer.Init();
 
     obj_vec.resize(12);
@@ -146,25 +146,20 @@ int main(int argc, char **argv){
     ((SphereT*)obj_vec[6])->SetRadius(10.0);
 
     obj_vec[7]=new SphereT();
-    obj_vec[7]->SetReflect(0.0); 
+    obj_vec[7]->SetReflect(1.0); 
     obj_vec[7]->SetRefract(0.0);
-    obj_vec[7]->SetDiffuse(2.0);
-    obj_vec[7]->SetRefractIndex(1.7);
-    obj_vec[7]->SetColor(PixelColor(255,255,255));
-    ((SphereT*)obj_vec[7])->SetCenter(PointT(0.0, 5.0, -20.0));
-    ((SphereT*)obj_vec[7])->SetRadius(3.0);
-    obj_vec[7]->SetTexture(my_textures.GetTexture(1));
+    obj_vec[7]->SetDiffuse(0.0);
+    obj_vec[7]->SetColor(PixelColor(255,255,0));
+    ((SphereT*)obj_vec[7])->SetCenter(PointT(-15.0, 15.0, 10.0));
+    ((SphereT*)obj_vec[7])->SetRadius(7.0);
 
     obj_vec[8]=new SphereT();
-    obj_vec[8]->SetReflect(0.0); 
+    obj_vec[8]->SetReflect(1.0); 
     obj_vec[8]->SetRefract(0.0);
     obj_vec[8]->SetDiffuse(0.0);
-    obj_vec[8]->SetRefractIndex(1.7);
-    obj_vec[8]->SetColor(PixelColor(255,255,255));
-    ((SphereT*)obj_vec[8])->SetCenter(PointT(0.0, 50.0, -50.0));
-    ((SphereT*)obj_vec[8])->SetRadius(0.5);
-    obj_vec[8]->SetLight(0.6);
-    obj_vec[8]->SetEmission(1.0, 1.0, 1.0);
+    obj_vec[8]->SetColor(PixelColor(0,255,255));
+    ((SphereT*)obj_vec[8])->SetCenter(PointT(-10.0, 2.0, 0.0));
+    ((SphereT*)obj_vec[8])->SetRadius(7.0);
 
     obj_vec[9]=new SphereT();
     obj_vec[9]->SetReflect(0.0); 
@@ -191,10 +186,9 @@ int main(int argc, char **argv){
     obj_vec[11]->SetRefractIndex(1.7);
     obj_vec[11]->SetColor(PixelColor(255,255,255));
     ((SphereT*)obj_vec[11])->SetCenter(PointT(-2.0, 7.0, -35.0));
-    ((SphereT*)obj_vec[11])->SetRadius(5);
+    ((SphereT*)obj_vec[11])->SetRadius(3);
 
-    obj_vec.erase(obj_vec.begin()+11);
-    obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+8);  
+    obj_vec.erase(obj_vec.begin()+4, obj_vec.begin()+7);  
 
     if (1){
       ObjectT sth;
