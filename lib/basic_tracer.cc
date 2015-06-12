@@ -22,7 +22,7 @@ CoordinateT Power(CoordinateT a, int n){
   return ret;
 }
 
-int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs, int opt){
+int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs, int opt)const{
   if (opt==1){
     double hit_dis=1e30;
     int hit_ret=-1;

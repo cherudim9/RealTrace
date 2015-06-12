@@ -1,7 +1,7 @@
 
 COMPILIER=g++
 
-CFLAGS=-g -Wall -std=c++0x -O2
+CFLAGS=-g -Wall -std=c++11 -O3 
 
 LDFLAGS=
 

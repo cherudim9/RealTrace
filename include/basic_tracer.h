@@ -32,7 +32,7 @@ class Tracer{
     //this process must put after tree building, which will alter the order of objs
   }
 
-  int FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs=std::vector<Renderer*>(), int opt=2);
+  int FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs=std::vector<Renderer*>(), int opt=2)const;
 
   int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug);
 
