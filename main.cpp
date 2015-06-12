@@ -429,7 +429,7 @@ int main(int argc, char **argv){
 
   Process render_process("Rendering whole", width*height, 1, width*height/1000);
   render_process.Start();
-  // #pragma omp parallel for schedule(dynamic,1) 
+  #pragma omp parallel for schedule(dynamic,1) 
   for(int i=0, im; i<width; i++)
     for(int j=0, jm, last_hit_seq=-1; j<height; j++){
       render_process.Update(i*height+j);
