@@ -6,7 +6,7 @@
 #include "bounding_volume_hierachy.h"
 #include <vector>
 
-const int kMaxDepth=10;
+const int kMaxDepth=15;
 
 class Tracer{
 
@@ -32,11 +32,11 @@ class Tracer{
     //this process must put after tree building, which will alter the order of objs
   }
 
-  int FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs=std::vector<Renderer*>(), int opt=2)const;
+  int FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs=std::vector<Renderer*>(), int opt=2);
 
   int RayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug);
 
-  int MonteCarloRayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug, int emission_coefficient=1);
+  int MonteCarloRayTrace(const RayT &r, const std::vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug, int emission_coefficient, bool into);
 
   int enter_times, q_len_tot;
 

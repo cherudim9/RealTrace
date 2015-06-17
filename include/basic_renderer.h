@@ -30,7 +30,7 @@ class Renderer{
 
  public:
  Renderer()
-   :id_(-1), emission_(), reflect_coefficient_(0.0), refract_coefficient_(0.0), diffuse_coefficient_(0.0), refract_index_(0.0), color_(), light_(0), light_intensity_(0.0), has_texture_(0){}
+   :id_(-1), group_(-1), emission_(), reflect_coefficient_(0.0), refract_coefficient_(0.0), diffuse_coefficient_(0.0), refract_index_(0.0), color_(), light_(0), light_intensity_(0.0), has_texture_(0){}
 
   virtual double Intersect(const RayT &r, PointT &ip){return 0.0;}
 
@@ -45,6 +45,7 @@ class Renderer{
   }
 
   int GetId()const{ return id_; }
+  int GetGroup()const{ return group_; }
   PointT GetEmission()const{return emission_; }
   CoordinateT GetReflect()const{ return reflect_coefficient_; }
   CoordinateT GetRefract()const{ return refract_coefficient_; }
@@ -57,7 +58,8 @@ class Renderer{
   TGAFILE* GetTGAFile()const{ return tga_file_; }
 
   void SetId(int x){ id_=x; }
-  void SetEmission(double x, double y, double z){ emission_=PointT(x,y,z); }
+  void SetGroup(int x){ group_=x; }
+  void SetEmission(double x, double y, double z){ light_=1; emission_=PointT(x,y,z); }
   void SetEmission(PointT a){ emission_=a; }
   void SetReflect(double a){ reflect_coefficient_=a; }
   void SetRefract(double a){ refract_coefficient_=a; }
@@ -73,7 +75,7 @@ class Renderer{
   }
   
  private:
-  int id_;
+  int id_, group_;
 
   PointT emission_;
 
@@ -117,6 +119,11 @@ class PlaneT: public Renderer{
   friend double Intersect(PlaneT &plane, const RayT &ray, PointT &ip);
 
   PointT GetSurfaceNormal(const PointT &surface_point, const PointT &from)const;
+
+  void DistanceToSlab(const PointT &d, CoordinateT &d1, CoordinateT &d2){ 
+    d1=-1e60;
+    d2=1e60;
+  }
 
  private:
   PointT o_, normal_; //normal_ is unit vector

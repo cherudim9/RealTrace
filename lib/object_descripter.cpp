@@ -273,7 +273,23 @@ namespace ObjectDescripter
 
     }
 
-  void ObjectT::Init(){
+  void ObjectT::Init(double len,  double x0, double y0, double z0){
+    double min_x=1e30, max_x=-1e30, min_y=min_x, max_y=max_x, min_z=min_x, max_z=max_x;
+    for(int i=0; i<m_nVertices; i++){
+      min_x=min(min_x, m_pVertexList[i].GetX());
+      max_x=max(max_x, m_pVertexList[i].GetX());
+      min_y=min(min_y, m_pVertexList[i].GetY());
+      max_y=max(max_y, m_pVertexList[i].GetY());
+      min_z=min(min_z, m_pVertexList[i].GetZ());
+      max_z=max(max_z, m_pVertexList[i].GetZ());
+    }
+    double len_x=max_x-min_x, len_y=max_y-min_y, len_z=max_z-min_z;
+    for(int i=0; i<m_nVertices; i++){
+      m_pVertexList[i].SetX( (m_pVertexList[i].GetX()-min_x)/len_x*len+x0 );
+      m_pVertexList[i].SetY( (m_pVertexList[i].GetY()-min_y)/len_y*len/len_x*len_y+y0 );
+      m_pVertexList[i].SetZ( (m_pVertexList[i].GetZ()-min_z)/len_z*len/len_x*len_z+z0 );
+    }
+    //--------------------------------------------------
     triangle_normal_=new PointT[m_nTriangles];
     vertex_triangle_relation_number_=new int[m_nVertices];
     for(int i=0; i<m_nVertices; i++)

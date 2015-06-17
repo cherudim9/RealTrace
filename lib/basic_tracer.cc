@@ -22,7 +22,7 @@ CoordinateT Power(CoordinateT a, int n){
   return ret;
 }
 
-int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs, int opt)const{
+int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &objs, int opt){
   if (opt==1){
     double hit_dis=1e30;
     int hit_ret=-1;
@@ -37,6 +37,8 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
     }
     return hit_ret;
   }
+
+  enter_times++;
   
   priority_queue<pair<double, BVHRenderer*> > Q;
   bool found=0;
@@ -54,6 +56,7 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
       int i_number=0;
       for(const auto &i: now_bvh_renderer->renderer_list_){
         PointT ip;
+        q_len_tot++;
         double t=i->Intersect(ray, ip);
         q_len++;
         if (Sign(t)>0){
@@ -66,6 +69,8 @@ int Tracer::FindFirstHitInVec(const RayT &ray, const std::vector<Renderer*> &obj
         i_number++;
       }
     }else{
+      q_len_tot++;
+      
       double tmp;
       tmp=now_bvh_renderer->left_son_->Intersect(ray);
       q_len+=2;
@@ -117,6 +122,10 @@ int Tracer::RayTrace(const RayT &ray, const std::vector<Renderer*> &objs, PointT
       light=RayT(light.GetO()+sphere->GetRadius()*light.GetR(), light.GetR());
       int shadow_hit_id = FindFirstHitInVec(light, objs);
       PointT light_hit;
+      if (shadow_hit_id==-1){
+        cout<<"fuck"<<endl;
+        continue;
+      }
       objs[shadow_hit_id]->Intersect(light, light_hit);
       bool Shadowed = ( light_hit != ray_hit );
       if (Shadowed)
@@ -174,7 +183,7 @@ PointT RandUnitVector(){
   return PointT(RandUnit(), RandUnit(), RandUnit());
 }
 
-int Tracer::MonteCarloRayTrace(const RayT &ray, const vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug, int emission_coefficient){
+int Tracer::MonteCarloRayTrace(const RayT &ray, const vector<Renderer*> &objs, PointT &accumulate_color, int now_depth, double refract_index, bool debug, int emission_coefficient, bool into){
   accumulate_color=PointT();
   int hit_seq=FindFirstHitInVec(ray, objs);
   if (hit_seq==-1)
@@ -226,23 +235,23 @@ int Tracer::MonteCarloRayTrace(const RayT &ray, const vector<Renderer*> &objs, P
     PointT W=N, U= Cross( ( (Abs(W.GetX())>0.1) ? PointT(0,1,0) : PointT(1,0,0) ) , W).Unit(), V=Cross(W,U).Unit(); 
     RayT diffuse_ray=RayT(ray_hit, W*r1 + U*r2_sqrt*cos(a1) + V*r2_sqrt*sin(a1) );
     PointT diffuse_color;
-    hit_seq *= MonteCarloRayTrace(diffuse_ray, objs, diffuse_color, now_depth+1, refract_index, debug, 0);
+    hit_seq *= MonteCarloRayTrace(diffuse_ray, objs, diffuse_color, now_depth+1, refract_index, debug, 0, into);
     accumulate_color+=diffuse_color*F*diffuse;
   }
 
   double reflect=objs[hit_id]->GetReflect();
   if (reflect>eps){
-    hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug, 1);
+    hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug, 1, into);
     accumulate_color+=reflect_color*F*reflect;
   }
 
   double refract=objs[hit_id]->GetRefract();
   if (refract>eps){
-    bool into=!((SphereT*)objs[hit_id])->Inside((ray_hit+ray.GetO())*0.5);
+    //bool into=!((SphereT*)objs[hit_id])->Inside((ray_hit+ray.GetO())*0.5);
     double nc=1., nt=objs[hit_id]->GetRefractIndex(), ratio=(into?nc/nt:nt/nc),  ddn=Dot(ray.GetR(), N);
     double cos2t = 1. - Sqr(ratio) * ( 1. - Sqr(ddn) );
     if (cos2t<0){ //total internal refraction
-      hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug);
+      hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug, 1, into);
       accumulate_color+=reflect_color*F*refract;
       return hit_seq;
     }
@@ -256,15 +265,15 @@ int Tracer::MonteCarloRayTrace(const RayT &ray, const vector<Renderer*> &objs, P
     double re=r0+(1-r0)*cc*cc*cc*cc*cc, tr=1-re, p=0.25+0.5*re, rp=re/p, tp=tr/(1-p);
     if (now_depth>2){
       if (RandUnit()<p){
-        hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug);
+        hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug, 1, into);
         accumulate_color+=F*reflect_color*rp*refract;
       }else{
-        hit_seq*=MonteCarloRayTrace(RayT(ray_hit, refract_dir), objs, refract_color, now_depth+1, refract_index, debug);
+        hit_seq*=MonteCarloRayTrace(RayT(ray_hit, refract_dir), objs, refract_color, now_depth+1, refract_index, debug, 1, !into);
         accumulate_color+=F*refract_color*tp*refract;
       }
     }else{
-      hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug);
-      hit_seq*=MonteCarloRayTrace(RayT(ray_hit, refract_dir), objs, refract_color, now_depth+1, refract_index, debug);
+      hit_seq*=MonteCarloRayTrace(RayT(ray_hit, V), objs, reflect_color, now_depth+1, refract_index, debug, 1, into);
+      hit_seq*=MonteCarloRayTrace(RayT(ray_hit, refract_dir), objs, refract_color, now_depth+1, refract_index, debug, 1, !into);
       accumulate_color+= F * refract * ( reflect_color * re + refract_color * tr );
     }
   }

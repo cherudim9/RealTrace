@@ -24,7 +24,7 @@ class PixelColor{
   BYTE r_, g_, b_;
 };
 
-const double eps=1e-7;
+const double eps=1e-9;
 const double kPI=3.14159265358979323846;
 
 template<class T>

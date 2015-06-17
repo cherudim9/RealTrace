@@ -43,7 +43,7 @@ namespace ObjectDescripter
         bool LoadFromObj(const char* fn);
         bool SaveToObj(const char* fn);
 
-	void Init();
+	void Init(double,double,double,double);
         
     protected:
         bool Parse(FILE* fp);

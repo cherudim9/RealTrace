@@ -41,6 +41,8 @@ class BVHInitComparetor{
  public:
  BVHInitComparetor(int a):depth(a){}
   bool operator()(Renderer *a, Renderer *b){
+    if (a->GetGroup() != b->GetGroup())
+      return a->GetGroup() < b->GetGroup();
     return Sign( a->GetBVHIndex(depth) - b->GetBVHIndex(depth) ) < 0;
   }
  private:

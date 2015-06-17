@@ -77,8 +77,8 @@ PointT PlaneT::GetColor(PointT surface_point)const{
   }
   int w=GetTGAFile()->imageWidth, h=GetTGAFile()->imageHeight;
   CoordinateT u = Dot(surface_point, u_axis), v=Dot(surface_point, v_axis);
-  u*=w/25.0;
-  v*=w/25.0;
+  u*=50;
+  v*=50;
   long long x=(long long)(u), y=(long long)(v);
   x=((x%w)+w)%w;
   y=((y%h)+h)%h;
@@ -91,7 +91,6 @@ PointT PlaneT::GetColor(PointT surface_point)const{
       C | D
    */
   CoordinateT A=du*dv, B=(1-du)*dv, C=du*(1-dv), D=(1-du)*(1-dv);
-  return GetTGAFile()->GetColor(x,y);
   return A * GetTGAFile()->GetColor(x,y)
     + B * GetTGAFile()->GetColor(x1,y)
     + C * GetTGAFile()->GetColor(x,y1)

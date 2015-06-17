@@ -81,10 +81,18 @@ void BVHRenderer::Init(std::vector<Renderer*>::iterator objs_begin, std::vector<
         best_depth=depth;
       }
     }
-
     int left_number=answer[best_depth];
-    //    if (best_depth != 2)
-      sort(objs_begin, objs_end, BVHInitComparetor(best_depth));
+    
+    //    if (0)
+    for(auto obj=objs_begin+1; obj!=objs_end; obj++)
+      if ((*obj)->GetGroup() != (*(obj-1))->GetGroup()){
+        left_number=obj-objs_begin;
+        break;
+      }
+
+    //cout<<left_number<<" "<<objs_end-objs_begin-left_number<<endl;
+
+    sort(objs_begin, objs_end, BVHInitComparetor(best_depth));
     left_son_->Init(objs_begin, objs_begin+left_number, before_number);
     right_son_->Init(objs_begin+left_number, objs_end, before_number+left_number);
   }
