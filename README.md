@@ -5,12 +5,12 @@ Project in Computer Vision class in 2015 spring. Including different Ray tracing
 
 **Demo of DOF**
 
-![](res/a.png)
+![](a.png)
 
 **Beautiful Glass Dragon**
 
-![](res/b.png)
+![](b.png)
 
 **Funny effects**
 
-![](res/c.png)
+![](c.png)
